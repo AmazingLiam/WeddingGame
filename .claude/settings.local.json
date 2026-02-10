@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /s \"C:\\\\Users\\\\liamh\\\\OneDrive\\\\Wedding\\\\Game\")",
+      "Bash(dir:*)",
+      "Bash(curl:*)",
+      "Bash(python:*)"
+    ]
+  }
+}

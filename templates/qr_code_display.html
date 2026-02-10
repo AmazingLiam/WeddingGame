@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}{{ guest.full_name }} - QR Code{% endblock %}
+
+{% block content %}
+<div class="qr-display-container page-content d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div style="max-width: 500px; width: 100%; text-align: center; padding: 20px; margin: 0 auto;">
+        <h2 class="mb-4">{{ guest.full_name }}</h2>
+
+        {% if guest.qr_code_path %}
+        <div class="card mb-4 mx-auto" style="border: none; background: white; padding: 25px; border-radius: 15px; max-width: 350px;">
+            <p class="mb-3" style="color: #666; font-size: 14px;">Scan to view answers:</p>
+            <div style="display: flex; justify-content: center;">
+                <img src="/static/{{ guest.qr_code_path }}" alt="QR Code for {{ guest.full_name }}"
+                     style="max-width: 250px; width: 100%; border: 3px solid #ddd; border-radius: 10px;">
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+            <p class="mb-0">QR code not available for this guest.</p>
+        </div>
+        {% endif %}
+
+        <div class="d-grid gap-3" style="max-width: 300px; margin: 0 auto;">
+            <button type="button" class="btn btn-primary btn-lg" onclick="goBack()" style="padding: 18px; font-size: 16px;">
+                Back to Guest List
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="goHome()" style="padding: 12px; font-size: 14px;">
+                Return to Home
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function goBack() {
+    document.querySelector('.page-content').classList.add('fade-out');
+    setTimeout(() => {
+        window.location.href = '/qr-codes';
+    }, 300);
+}
+
+function goHome() {
+    document.querySelector('.page-content').classList.add('fade-out');
+    setTimeout(() => {
+        window.location.href = '/';
+    }, 300);
+}
+</script>
+{% endblock %}

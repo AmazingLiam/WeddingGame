@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Your Answers - Wedding Betting Game{% endblock %}
+
+{% block content %}
+<div class="answers-container" style="padding: 20px 15px; min-height: 100vh;">
+    <div style="max-width: 500px; margin: 0 auto;">
+        <h2 class="mb-4 text-center" style="font-size: 1.5rem;">{{ guest.full_name }}</h2>
+
+        <div class="card mb-4">
+            <div class="card-body p-2">
+                {% for answer in answers %}
+                <div class="answer-row {% if not loop.last %}border-bottom{% endif %} py-2 px-1">
+                    <div class="answer-label">{{ answer.short_label }}</div>
+                    <div class="answer-value">
+                        {{ answer.answer }}{% if answer.unit and answer.type != 'time' %} {{ answer.unit }}{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center; padding: 15px; background: rgba(77, 212, 199, 0.15); border-radius: 10px;">
+            <p style="font-size: 0.9rem; color: #333; margin: 0;">
+                📌 <strong>Keep this page open!</strong><br>
+                <span style="font-size: 0.85rem; color: #666;">Share and compare your answers with other guests</span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+.answer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.answer-label {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    flex: 1;
+}
+
+.answer-value {
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+</style>
+{% endblock %}

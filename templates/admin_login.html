@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login{% endblock %}
+
+{% block content %}
+<div class="admin-login-container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div style="width: 100%; max-width: 400px; padding: 20px;">
+        <h2 class="text-center mb-5">Admin Login</h2>
+
+        {% if error %}
+        <div class="alert alert-danger mb-4">{{ error }}</div>
+        {% endif %}
+
+        <form method="post">
+            <div class="mb-4">
+                <label for="password" class="form-label">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter admin password" style="font-size: 18px; padding: 15px;" autofocus>
+            </div>
+
+            <div class="d-grid gap-3">
+                <button type="submit" class="btn btn-primary btn-lg" style="padding: 15px; font-size: 16px;">
+                    Login
+                </button>
+                <a href="/" class="btn btn-outline-secondary btn-lg" style="padding: 15px; font-size: 16px;">
+                    Back to Home
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

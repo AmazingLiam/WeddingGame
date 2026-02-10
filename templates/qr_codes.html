@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}QR Codes - Wedding Betting Game{% endblock %}
+
+{% block content %}
+<div class="qr-codes-container page-content" style="padding: 30px 20px; min-height: 80vh;">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <h2 class="mb-4 text-center">QR Codes</h2>
+        <p class="text-center text-muted mb-4">Select a guest to view their QR code</p>
+
+        {% if guests %}
+        <div class="card mb-4">
+            <div class="card-body p-2">
+                <div class="guest-list">
+                    {% for guest in guests %}
+                    <a href="{{ url_for('qr_code_display', guest_id=guest.id) }}" class="guest-item {% if not loop.last %}border-bottom{% endif %}">
+                        <span class="guest-name">{{ guest.full_name }}</span>
+                        <span class="guest-arrow">›</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info text-center">
+            <p class="mb-0">No guests have submitted answers yet.</p>
+        </div>
+        {% endif %}
+
+        <div class="d-grid">
+            <button type="button" class="btn btn-primary btn-lg" onclick="goHome()" style="padding: 20px; font-size: 18px;">
+                Back to Home
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.guest-list {
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.guest-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 12px;
+    text-decoration: none;
+    color: var(--text-dark);
+    transition: background-color 0.2s ease;
+}
+
+.guest-item:hover {
+    background-color: rgba(185, 213, 213, 0.3);
+}
+
+.guest-name {
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.guest-arrow {
+    font-size: 24px;
+    color: #999;
+    font-weight: 300;
+}
+</style>
+
+<script>
+function goHome() {
+    document.querySelector('.page-content').classList.add('fade-out');
+    setTimeout(() => {
+        window.location.href = '/';
+    }, 300);
+}
+</script>
+{% endblock %}

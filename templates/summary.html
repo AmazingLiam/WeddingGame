@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Wedding Betting Game - Review Answers{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="summary-container page-content" style="padding: 15px 15px; min-height: 100vh;">
+    <div style="max-width: 700px; margin: 0 auto;">
+        <h2 class="mb-2 text-center" style="font-size: 1.5rem;">Review Your Answers</h2>
+        <p class="text-center text-muted mb-2" style="font-size: 0.9rem;">Hi, {{ guest.full_name.split()[0] }}!</p>
+
+        <div class="card mb-2">
+            <div class="card-body p-2">
+                <table class="table table-borderless mb-0">
+                    <tbody>
+                        {% for item in summary %}
+                        <tr>
+                            <td style="padding: 8px 10px;">
+                                <strong style="font-size: 0.85rem;">{{ item.order }}: {{ item.text }}</strong>
+                            </td>
+                            <td style="text-align: right; vertical-align: middle; padding: 8px 6px; white-space: nowrap;">
+                                {% if item.answer %}
+                                    <span class="badge bg-success" style="font-size: 0.8rem; padding: 4px 8px;">
+                                        {{ item.answer }} {{ item.unit }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger" style="font-size: 0.75rem; padding: 3px 7px;">
+                                        Not answered
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: right; vertical-align: middle; padding: 8px 10px; width: 50px;">
+                                <a href="/question/{{ loop.index0 }}" class="btn btn-sm btn-outline-primary" style="min-height: 34px; padding: 4px 10px; font-size: 0.8rem;">Edit</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% set unanswered = summary | selectattr('answer', 'equalto', '') | list | length %}
+        {% if unanswered > 0 %}
+        <div class="alert alert-warning mb-2 py-2" style="font-size: 0.85rem;">
+            <strong>Warning:</strong> You have {{ unanswered }} unanswered question(s). You can still submit, but those won't be included in the scoring.
+        </div>
+        {% endif %}
+
+        <!-- Phone reminder -->
+        <div class="alert phone-reminder mb-2 py-2" style="background: rgba(77, 212, 199, 0.2); border: 2px solid #4dd4c7; border-radius: 10px;">
+            <p style="font-size: 0.85rem; margin: 0; color: #1a1a1a; text-align: center;">
+                📱 <strong>Get your phone ready!</strong>
+                <span style="font-size: 0.8rem;"> — You'll receive a QR code after submitting</span>
+            </p>
+        </div>
+
+        <div class="d-grid gap-2">
+            <button type="button" class="btn btn-success" onclick="submitAnswers()" style="padding: 14px; font-size: 16px; min-height: 48px;">
+                Submit Answers
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="goBack()" style="padding: 10px; font-size: 14px; min-height: 40px;">
+                Go Back
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Page transition helper
+function navigateWithFade(url) {
+    document.querySelector('.page-content').classList.add('fade-out');
+    setTimeout(() => {
+        window.location.href = url;
+    }, 300);
+}
+
+async function submitAnswers() {
+    try {
+        const response = await fetch('/submit-final', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Store guest info for later
+            const guestInfo = JSON.parse(localStorage.getItem('current_guest')) || {};
+            localStorage.setItem('returning_guest', JSON.stringify({
+                full_name: data.guest_name || guestInfo.full_name,
+                qr_code_path: data.qr_code_path
+            }));
+
+            // Redirect to confirmation page with QR data in URL
+            document.querySelector('.page-content').classList.add('fade-out');
+            setTimeout(() => {
+                window.location.href = `/confirmation-complete?qr=${encodeURIComponent(data.qr_code_path)}&name=${encodeURIComponent(data.guest_name || guestInfo.full_name)}`;
+            }, 300);
+        } else {
+            alert(data.error || 'Error submitting answers');
+        }
+    } catch (error) {
+        console.error('Error submitting:', error);
+        alert('Error submitting answers');
+    }
+}
+
+function goBack() {
+    // Get number of questions
+    const totalQuestions = {{ summary | length }};
+    navigateWithFade(`/question/${totalQuestions - 1}`);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Wedding Betting Game - Find Your Name{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="search-container page-content d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div style="width: 100%; max-width: 500px; padding: 20px;">
+        <h2 class="text-center mb-4">Find Your Name</h2>
+
+        <div class="mb-3">
+            <label for="nameInput" class="form-label">Search for your name:</label>
+            <input type="text" class="form-control search-input" id="nameInput" placeholder="Start typing..." style="font-size: 18px; padding: 15px;">
+        </div>
+
+        <div id="suggestions" class="list-group" style="max-height: 400px; overflow-y: auto; display: none;">
+            <!-- Suggestions will appear here -->
+        </div>
+
+        <div id="no-match" class="alert alert-warning mt-3" style="display: none;">
+            <p><strong>Name not found</strong></p>
+            <p class="text-muted mb-3">Enter your name manually below:</p>
+            <div class="row g-2">
+                <div class="col">
+                    <input type="text" class="form-control" id="manualFirstName" placeholder="First name" style="font-size: 16px; padding: 12px;">
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" id="manualLastName" placeholder="Last name" style="font-size: 16px; padding: 12px;">
+                </div>
+            </div>
+            <button type="button" class="btn btn-warning w-100 mt-2" onclick="submitManualEntry()">Continue with this name</button>
+        </div>
+
+        <button type="button" class="btn btn-secondary w-100 mt-4" onclick="goBack()">Back</button>
+    </div>
+</div>
+
+<script>
+let allGuests = [];
+
+// Load guests on page load
+async function loadGuests() {
+    try {
+        const response = await fetch('/api/guests/search?q=');
+        // This won't return all, so we'll search as user types
+    } catch (error) {
+        console.error('Error loading guests:', error);
+    }
+}
+
+// Search function with debouncing
+let searchTimeout;
+document.getElementById('nameInput').addEventListener('input', function(e) {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim();
+
+    if (query.length < 1) {
+        document.getElementById('suggestions').style.display = 'none';
+        document.getElementById('no-match').style.display = 'none';
+        return;
+    }
+
+    searchTimeout = setTimeout(async function() {
+        try {
+            const response = await fetch(`/api/guests/search?q=${encodeURIComponent(query)}`, {
+                credentials: 'same-origin'
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const guests = await response.json();
+
+            const suggestionsDiv = document.getElementById('suggestions');
+            suggestionsDiv.innerHTML = '';
+
+            if (!Array.isArray(guests) || guests.length === 0) {
+                suggestionsDiv.style.display = 'none';
+                document.getElementById('no-match').style.display = 'block';
+            } else {
+                guests.forEach(guest => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'list-group-item list-group-item-action';
+                    button.style.fontSize = '18px';
+                    button.style.padding = '15px';
+                    button.textContent = guest.full_name || `${guest.first_name} ${guest.last_name}`;
+                    button.onclick = function(e) {
+                        e.preventDefault();
+                        selectGuest(guest);
+                    };
+                    suggestionsDiv.appendChild(button);
+                });
+                suggestionsDiv.style.display = 'block';
+                document.getElementById('no-match').style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error searching guests:', error);
+            document.getElementById('suggestions').style.display = 'none';
+            document.getElementById('no-match').style.display = 'block';
+        }
+    }, 200);
+});
+
+async function selectGuest(guest) {
+    try {
+        const response = await fetch('/start-game', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                guest_id: guest.id
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            // Store guest info for later
+            localStorage.setItem('current_guest', JSON.stringify({
+                id: guest.id,
+                full_name: guest.full_name
+            }));
+            document.querySelector('.page-content').classList.add('fade-out');
+            setTimeout(() => {
+                window.location.href = '/question/0';
+            }, 300);
+        } else {
+            alert(data.error || 'Error starting game');
+        }
+    } catch (error) {
+        console.error('Error starting game:', error);
+        alert('Error starting game');
+    }
+}
+
+async function submitManualEntry() {
+    const firstName = document.getElementById('manualFirstName').value.trim();
+    const lastName = document.getElementById('manualLastName').value.trim();
+
+    if (!firstName || !lastName) {
+        alert('Please enter both first and last name');
+        return;
+    }
+
+    const fullName = `${firstName} ${lastName}`;
+
+    try {
+        const response = await fetch('/start-game', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                guest_id: -1,
+                guest_name: fullName
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            // Store guest info for later
+            localStorage.setItem('current_guest', JSON.stringify({
+                id: -1,
+                full_name: fullName,
+                is_manual: true
+            }));
+            document.querySelector('.page-content').classList.add('fade-out');
+            setTimeout(() => {
+                window.location.href = '/question/0';
+            }, 300);
+        } else {
+            alert(data.error || 'Error starting game');
+        }
+    } catch (error) {
+        console.error('Error starting game:', error);
+        alert('Error starting game');
+    }
+}
+
+function goBack() {
+    document.querySelector('.page-content').classList.add('fade-out');
+    setTimeout(() => {
+        window.location.href = '/';
+    }, 300);
+}
+
+// Load guests on page load
+loadGuests();
+</script>
+{% endblock %}

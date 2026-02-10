@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Wedding Betting Game - Question{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="question-container page-content d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div style="width: 100%; max-width: 600px; padding: 20px;">
+        <!-- Progress bar -->
+        <div class="progress-container mb-4">
+            {% set progress = ((question_num + 1) / total_questions * 100) | int %}
+            <div class="progress-label">Question {{ question_num + 1 }} of {{ total_questions }}</div>
+            <div class="progress" style="height: 8px;">
+                <div class="progress-bar" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+
+        <!-- Question text -->
+        <h2 class="mb-4">{{ question.question_text }}</h2>
+
+        <!-- Guest name -->
+        <p class="text-muted">Hi, {{ guest_name.split()[0] }}!</p>
+
+        <!-- Input section -->
+        <form id="answerForm" style="margin: 40px 0;">
+            {% if question.question_type == 'time' %}
+                <!-- Time slider input -->
+                <div class="mb-4">
+                    <label for="timeSlider" class="form-label">Select time:</label>
+                    <input type="range" class="form-range" id="timeSlider"
+                           min="0" max="100" value="50"
+                           data-min-time="{{ question.min or '00:00' }}"
+                           data-max-time="{{ question.max or '23:59' }}"
+                           style="height: 30px;">
+                    <div class="d-flex justify-content-between mt-2">
+                        <span class="form-text">{{ question.min or '00:00' }}</span>
+                        <span id="timeValue" style="font-weight: bold; font-size: 24px; color: #4dd4c7;">--:--</span>
+                        <span class="form-text">{{ question.max or '23:59' }}</span>
+                    </div>
+                    <input type="hidden" id="timeInput" value="{{ current_answer }}">
+                </div>
+            {% else %}
+                <!-- Number slider input -->
+                {% set min_val = question.min if question.min is not none else 0 %}
+                {% set max_val = question.max if question.max is not none else 100 %}
+                {% set mid_val = ((min_val + max_val) / 2) | int %}
+                <div class="mb-4">
+                    <label for="numberSlider" class="form-label">Select your guess:</label>
+                    <input type="range" class="form-range" id="numberSlider"
+                           min="{{ min_val }}"
+                           max="{{ max_val }}"
+                           value="{{ current_answer or mid_val }}"
+                           style="height: 30px;">
+                    <div class="slider-labels mt-2">
+                        <span class="slider-min">{{ min_val }}</span>
+                        <span id="sliderValue" class="slider-value">{{ current_answer or mid_val }}</span>
+                        <span class="slider-max">{{ max_val }}</span>
+                    </div>
+                    <small class="form-text d-block text-center mt-2">{{ question.unit }}</small>
+                    <input type="hidden" id="numberInput" value="{{ current_answer or mid_val }}">
+                </div>
+            {% endif %}
+        </form>
+
+        <!-- Navigation buttons -->
+        <div class="d-grid gap-3 mb-3">
+            <button type="button" class="btn btn-primary btn-lg" onclick="nextQuestion()" style="padding: 20px; font-size: 18px;">
+                {% if question_num + 1 < total_questions %}
+                    Next Question
+                {% else %}
+                    Review Answers
+                {% endif %}
+            </button>
+        </div>
+
+        <div class="d-grid gap-3">
+            {% if question_num > 0 %}
+            <button type="button" class="btn btn-outline-secondary btn-lg" onclick="previousQuestion()" style="padding: 15px; font-size: 16px;">
+                Previous Question
+            </button>
+            {% endif %}
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="showCancelModal()" style="padding: 10px;">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Cancel Modal -->
+<div class="modal-overlay" id="cancelModal">
+    <div class="custom-modal">
+        <h4>Cancel Game?</h4>
+        <p>Are you sure you want to cancel? Your answers will be lost.</p>
+        <div class="modal-buttons">
+            <button type="button" class="btn btn-secondary" onclick="hideCancelModal()">Go Back</button>
+            <button type="button" class="btn btn-danger" onclick="confirmCancel()">Yes, Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const questionId = {{ question.id }};
+const questionNum = {{ question_num }};
+const totalQuestions = {{ total_questions }};
+const questionType = '{{ question.question_type }}';
+
+// Page transition helper
+function navigateWithFade(url) {
+    document.querySelector('.page-content').classList.add('fade-out');
+    setTimeout(() => {
+        window.location.href = url;
+    }, 300);
+}
+
+{% if question.question_type == 'time' %}
+// Time slider logic
+const timeSlider = document.getElementById('timeSlider');
+const timeValue = document.getElementById('timeValue');
+const timeInput = document.getElementById('timeInput');
+
+function timeToMinutes(timeStr) {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours * 60 + minutes;
+}
+
+function minutesToTime(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+}
+
+const minTime = timeSlider.dataset.minTime || '00:00';
+const maxTime = timeSlider.dataset.maxTime || '23:59';
+const minMinutes = timeToMinutes(minTime);
+const maxMinutes = timeToMinutes(maxTime);
+const range = maxMinutes - minMinutes;
+
+function updateTimeDisplay() {
+    const sliderValue = parseInt(timeSlider.value);
+    const currentMinutes = minMinutes + Math.round((sliderValue / 100) * range);
+    const timeStr = minutesToTime(currentMinutes);
+    timeValue.textContent = timeStr;
+    timeInput.value = timeStr;
+}
+
+// Set initial value
+const savedAnswer = '{{ current_answer }}';
+if (savedAnswer) {
+    const savedMinutes = timeToMinutes(savedAnswer);
+    const sliderPos = ((savedMinutes - minMinutes) / range) * 100;
+    timeSlider.value = Math.round(sliderPos);
+} else {
+    timeSlider.value = 50;
+}
+updateTimeDisplay();
+
+timeSlider.addEventListener('input', updateTimeDisplay);
+
+function getAnswer() {
+    return timeInput.value;
+}
+
+{% else %}
+// Number slider logic
+const numberSlider = document.getElementById('numberSlider');
+const sliderValue = document.getElementById('sliderValue');
+const numberInput = document.getElementById('numberInput');
+
+function updateNumberDisplay() {
+    sliderValue.textContent = numberSlider.value;
+    numberInput.value = numberSlider.value;
+}
+
+numberSlider.addEventListener('input', updateNumberDisplay);
+
+function getAnswer() {
+    return numberInput.value;
+}
+{% endif %}
+
+async function saveAnswer() {
+    const answer = getAnswer();
+
+    if (!answer) {
+        alert('Please select an answer');
+        return false;
+    }
+
+    try {
+        const response = await fetch(`/answer/${questionId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                answer: answer
+            })
+        });
+
+        if (response.ok) {
+            return true;
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Error saving answer');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error saving answer:', error);
+        alert('Error saving answer');
+        return false;
+    }
+}
+
+async function nextQuestion() {
+    if (await saveAnswer()) {
+        if (questionNum + 1 < totalQuestions) {
+            navigateWithFade(`/question/${questionNum + 1}`);
+        } else {
+            navigateWithFade('/summary');
+        }
+    }
+}
+
+function previousQuestion() {
+    if (questionNum > 0) {
+        navigateWithFade(`/question/${questionNum - 1}`);
+    }
+}
+
+function showCancelModal() {
+    document.getElementById('cancelModal').classList.add('active');
+}
+
+function hideCancelModal() {
+    document.getElementById('cancelModal').classList.remove('active');
+}
+
+function confirmCancel() {
+    hideCancelModal();
+    navigateWithFade('/');
+}
+</script>
+{% endblock %}
