@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+
+# Database & backups
+data/wedding.db
+data/Backups/
+
+# Generated QR codes
+static/qr_codes/
+
+# Claude Code local settings
+.claude/
