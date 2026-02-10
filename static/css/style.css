@@ -27,6 +27,7 @@ html, body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: var(--text-dark);
     overscroll-behavior: none;
+    overflow-x: hidden;
 }
 
 /* ====================================================================
@@ -95,8 +96,19 @@ body {
 }
 
 .navbar-brand {
-    font-size: 24px !important;
+    font-size: 15px !important;
     font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60vw;
+}
+
+@media (min-width: 768px) {
+    .navbar-brand {
+        font-size: 20px !important;
+        max-width: none;
+    }
 }
 
 /* Main container */
@@ -946,8 +958,8 @@ h5 {
     }
 
     .answers-container .answer-value {
-        background: linear-gradient(to right, #4dd4c7, #b97089);
-        color: #fff;
+        background: #4dd4c7;
+        color: #1a1a1a;
     }
 
     .answers-container .answer-row {

@@ -196,6 +196,22 @@ def guest_has_submitted(guest_id):
     conn.close()
     return dict(result)['has_submitted'] if result else False
 
+def create_manual_guest(full_name):
+    """Create a guest record for a manual entry (not from CSV)"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    parts = full_name.strip().split(None, 1)
+    first_name = parts[0] if parts else full_name
+    last_name = parts[1] if len(parts) > 1 else ''
+    cursor.execute('''
+        INSERT INTO guests (first_name, last_name, full_name)
+        VALUES (?, ?, ?)
+    ''', (first_name, last_name, full_name))
+    conn.commit()
+    new_id = cursor.lastrowid
+    conn.close()
+    return new_id
+
 def get_submitted_guests():
     """Get all guests who have submitted, ordered by first name"""
     conn = get_db_connection()

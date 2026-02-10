@@ -305,17 +305,35 @@ def submit_final():
     guest_id = session['guest_id']
     guest_name = session.get('guest_name', 'Guest')
 
-    # For manual entries, skip database submission
+    # For manual entries, create a real guest record so they appear on leaderboard
     if guest_id == -1:
-        # Manual entry - just generate QR code
-        token, qr_path, qr_url = generate_guest_qr(-1, guest_name)
-        session.clear()
-        return jsonify({
-            'success': True,
-            'qr_code_path': qr_path,
-            'qr_url': qr_url,
-            'guest_name': guest_name
-        })
+        try:
+            # Create a guest record in the database for this manual entry
+            new_guest_id = db.create_manual_guest(guest_name)
+
+            # Save all answers to database under the new guest ID
+            answers = session.get('answers', {})
+            for question_id, answer in answers.items():
+                db.save_response(new_guest_id, int(question_id), answer)
+
+            # Generate QR code
+            token, qr_path, qr_url = generate_guest_qr(new_guest_id, guest_name)
+
+            # Mark as submitted
+            db.mark_guest_submitted(new_guest_id, qr_path, token)
+
+            session.clear()
+            return jsonify({
+                'success': True,
+                'qr_code_path': qr_path,
+                'qr_url': qr_url,
+                'guest_name': guest_name
+            })
+        except Exception as e:
+            print(f"Error submitting manual entry: {e}")
+            import traceback
+            traceback.print_exc()
+            return jsonify({'error': 'Error saving answers'}), 500
 
     # Check if already submitted
     if db.guest_has_submitted(guest_id):
@@ -467,6 +485,8 @@ def view_guest_answers(token):
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     """Admin login page"""
+    admin_url = f"{Config.BASE_URL}/admin/login"
+
     if request.method == 'POST':
         password = request.form.get('password', '')
 
@@ -474,9 +494,9 @@ def admin_login():
             session['admin'] = True
             return redirect(url_for('admin_dashboard'))
         else:
-            return render_template('admin_login.html', error='Invalid password')
+            return render_template('admin_login.html', error='Invalid password', admin_url=admin_url)
 
-    return render_template('admin_login.html')
+    return render_template('admin_login.html', admin_url=admin_url)
 
 @app.route('/admin/logout')
 def admin_logout():
@@ -491,16 +511,11 @@ def admin_dashboard():
     questions = db.get_questions()
     submission_count = db.get_submission_count()
 
-    # Generate admin URL for QR code (phone access without QR button)
-    admin_url = f"{Config.BASE_URL}/admin/login"
-
     return render_template('admin_dashboard.html',
                          questions=questions,
-                         submission_count=submission_count,
-                         admin_url=admin_url)
+                         submission_count=submission_count)
 
 @app.route('/admin/qr-code')
-@admin_required
 def admin_qr_code():
     """Generate QR code for admin login page (for phone access)"""
     from flask import Response

@@ -21,10 +21,10 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for('home') }}">The Hancox Wedding Sweepstake</a>
-            <div class="navbar-nav ms-auto">
+            <div class="navbar-nav ms-auto flex-row gap-3">
                 {% if session.get('admin') %}
-                    <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Dashboard</a>
-                    <a class="nav-link" href="{{ url_for('admin_logout') }}">Logout</a>
+                    <a class="nav-link" href="{{ url_for('admin_dashboard') }}" title="Dashboard" style="font-size: 18px; padding: 4px 8px;">&#9881;</a>
+                    <a class="nav-link" href="{{ url_for('admin_logout') }}" title="Logout" style="font-size: 18px; padding: 4px 8px;">&#x2716;</a>
                 {% endif %}
             </div>
         </div>
