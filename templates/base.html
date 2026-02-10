@@ -10,7 +10,7 @@
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='images/icon-192.png') }}">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/icon-192.png') }}">
-    <title>{% block title %}Wedding Betting Game{% endblock %}</title>
+    <title>{% block title %}The Hancox Wedding Sweepstake{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block extra_css %}{% endblock %}
@@ -20,7 +20,7 @@
     {% block navbar %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('home') }}">💒 Wedding Betting Game</a>
+            <a class="navbar-brand" href="{{ url_for('home') }}">The Hancox Wedding Sweepstake</a>
             <div class="navbar-nav ms-auto">
                 {% if session.get('admin') %}
                     <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Dashboard</a>
@@ -36,13 +36,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    {% block footer %}
-    <footer class="footer text-center py-4 mt-5" style="background: linear-gradient(to right, #02403d, #143850); color: white;">
-        <p class="mb-0" style="font-weight: 500; font-size: 16px;">Fran & Liam Hancox 11/04/2026</p>
-        <p class="mb-0" style="font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 8px;">Made with 💕 for our special day</p>
-    </footer>
-    {% endblock %}
+    <!-- Footer removed to prevent scrolling -->
 
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/fuse.min.js') }}"></script>

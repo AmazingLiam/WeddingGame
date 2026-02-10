@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Wedding Betting Game - Thank You!{% endblock %}
+{% block title %}The Hancox Wedding Sweepstake{% endblock %}
 
 {% block navbar %}{% endblock %}
 {% block footer %}{% endblock %}
@@ -8,12 +8,12 @@
 {% block content %}
 <div class="confirmation-container page-content d-flex align-items-center justify-content-center" style="min-height: 80vh;">
     <div style="max-width: 600px; width: 100%; text-align: center; padding: 20px; margin: 0 auto;">
-        <h1 class="display-4 mb-4">Thank You! 🎉</h1>
+        <h1 class="display-4 mb-4">Thank You!</h1>
         <p class="lead mb-4" style="color: #4dd4c7;">{{ first_name }}, your answers have been submitted!</p>
 
         {% if qr_code_path %}
         <div class="card mb-4 mx-auto" style="border: none; background: white; padding: 25px; border-radius: 15px; max-width: 350px;">
-            <p class="mb-3" style="color: #333; font-size: 16px;">📱 Scan to save your answers:</p>
+            <p class="mb-3" style="color: #1a1a1a; font-size: 16px; font-weight: 600;">Keep a reminder of your answers</p>
             <div style="display: flex; justify-content: center;">
                 <img src="/static/{{ qr_code_path }}" alt="QR Code" style="max-width: 250px; width: 100%; border: 3px solid #ddd; border-radius: 10px;"
                      onerror="this.parentElement.innerHTML='<p class=\'text-muted\'>QR code will be available shortly</p>';">

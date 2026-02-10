@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Your Answers - Wedding Betting Game{% endblock %}
+{% block title %}The Hancox Wedding Sweepstake{% endblock %}
 
 {% block content %}
 <div class="answers-container" style="padding: 20px 15px; min-height: 100vh;">
@@ -20,10 +20,10 @@
             </div>
         </div>
 
-        <div style="margin-top: 30px; text-align: center; padding: 15px; background: rgba(77, 212, 199, 0.15); border-radius: 10px;">
-            <p style="font-size: 0.9rem; color: #333; margin: 0;">
-                📌 <strong>Keep this page open!</strong><br>
-                <span style="font-size: 0.85rem; color: #666;">Share and compare your answers with other guests</span>
+        <div class="guest-answers-reminder" style="margin-top: 30px; text-align: center; padding: 15px; background: rgba(77, 212, 199, 0.25); border-radius: 10px; border: 1px solid rgba(77, 212, 199, 0.4);">
+            <p style="font-size: 0.9rem; margin: 0;">
+                <strong style="color: #4dd4c7;">Keep this page open!</strong><br>
+                <span style="font-size: 0.85rem; color: #e0e0e0;">Share and compare your answers with other guests</span>
             </p>
         </div>
     </div>
@@ -39,14 +39,14 @@
 
 .answer-label {
     font-weight: 600;
-    color: var(--text-dark);
+    color: #e0e0e0;
     font-size: 0.9rem;
     flex: 1;
 }
 
 .answer-value {
-    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-    color: white;
+    background: linear-gradient(to right, #4dd4c7, #b97089);
+    color: #fff;
     padding: 6px 12px;
     border-radius: 6px;
     font-size: 0.85rem;

@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Wedding Betting Game - Question{% endblock %}
+{% block title %}The Hancox Wedding Sweepstake{% endblock %}
 
 {% block navbar %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block content %}
 <div class="question-container page-content d-flex align-items-center justify-content-center" style="min-height: 80vh;">
-    <div style="width: 100%; max-width: 600px; padding: 20px;">
+    <div style="width: 100%; max-width: 900px; padding: 20px;">
         <!-- Progress bar -->
         <div class="progress-container mb-4">
             {% set progress = ((question_num + 1) / total_questions * 100) | int %}
@@ -20,8 +20,8 @@
         <!-- Question text -->
         <h2 class="mb-4">{{ question.question_text }}</h2>
 
-        <!-- Guest name -->
-        <p class="text-muted">Hi, {{ guest_name.split()[0] }}!</p>
+        <!-- Guest quip -->
+        <p class="text-muted">{{ quip }}</p>
 
         <!-- Input section -->
         <form id="answerForm" style="margin: 40px 0;">

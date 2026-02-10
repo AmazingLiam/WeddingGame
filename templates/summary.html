@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Wedding Betting Game - Review Answers{% endblock %}
+{% block title %}The Hancox Wedding Sweepstake{% endblock %}
 
 {% block navbar %}{% endblock %}
 {% block footer %}{% endblock %}
@@ -9,7 +9,7 @@
 <div class="summary-container page-content" style="padding: 15px 15px; min-height: 100vh;">
     <div style="max-width: 700px; margin: 0 auto;">
         <h2 class="mb-2 text-center" style="font-size: 1.5rem;">Review Your Answers</h2>
-        <p class="text-center text-muted mb-2" style="font-size: 0.9rem;">Hi, {{ guest.full_name.split()[0] }}!</p>
+        <p class="text-center text-muted mb-2" style="font-size: 0.9rem;">{{ summary_quip }}</p>
 
         <div class="card mb-2">
             <div class="card-body p-2">

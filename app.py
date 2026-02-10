@@ -1,4 +1,5 @@
 import os
+import random
 import secrets
 import qrcode
 from io import BytesIO
@@ -207,12 +208,18 @@ def question(question_num):
         # Get current answer if it exists
         current_answer = session.get('answers', {}).get(str(question['id']), '')
 
+        # Pick a random quip for this question
+        first_name = guest_name.split()[0] if guest_name else 'Guest'
+        quips = Config.QUESTION_QUIPS.get(question['order_index'], [])
+        quip = random.choice(quips).format(name=first_name) if quips else f"Hi, {first_name}!"
+
         return render_template('question.html',
                              question=question,
                              question_num=question_num,
                              total_questions=len(questions),
                              guest_name=guest_name,
-                             current_answer=current_answer)
+                             current_answer=current_answer,
+                             quip=quip)
     except Exception as e:
         print(f"Error in question route: {e}")
         import traceback
@@ -275,9 +282,14 @@ def summary():
                 'order': question['order_index']
             })
 
+        # Pick a random quip for the summary page
+        first_name = guest_name.split()[0] if guest_name else 'Guest'
+        summary_quip = random.choice(Config.SUMMARY_QUIPS).format(name=first_name)
+
         return render_template('summary.html',
                              guest=guest,
-                             summary=summary_data)
+                             summary=summary_data,
+                             summary_quip=summary_quip)
     except Exception as e:
         print(f"Error in summary route: {e}")
         import traceback
@@ -479,9 +491,28 @@ def admin_dashboard():
     questions = db.get_questions()
     submission_count = db.get_submission_count()
 
+    # Generate admin URL for QR code (phone access without QR button)
+    admin_url = f"{Config.BASE_URL}/admin/login"
+
     return render_template('admin_dashboard.html',
                          questions=questions,
-                         submission_count=submission_count)
+                         submission_count=submission_count,
+                         admin_url=admin_url)
+
+@app.route('/admin/qr-code')
+@admin_required
+def admin_qr_code():
+    """Generate QR code for admin login page (for phone access)"""
+    from flask import Response
+    admin_url = f"{Config.BASE_URL}/admin/login"
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
+    qr.add_data(admin_url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buf = BytesIO()
+    img.save(buf, format='PNG')
+    buf.seek(0)
+    return Response(buf.getvalue(), mimetype='image/png')
 
 @app.route('/admin/update-answer', methods=['POST'])
 @admin_required
@@ -585,7 +616,7 @@ def server_error(error):
 
 if __name__ == '__main__':
     print("=" * 60)
-    print("Wedding Betting Game - Server Starting")
+    print("The Hancox Wedding Sweepstake - Server Starting")
     print("=" * 60)
     print(f"Database: {Config.DATABASE_PATH}")
     print(f"Questions: {len(Config.QUESTIONS)}")
