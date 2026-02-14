@@ -6,50 +6,109 @@
 {% block footer %}{% endblock %}
 
 {% block content %}
-<div class="confirmation-container page-content d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+<canvas id="confetti-canvas"></canvas>
+
+<div class="confirmation-container page-content d-flex align-items-center justify-content-center" style="min-height: 100vh;">
     <div style="max-width: 600px; width: 100%; text-align: center; padding: 20px; margin: 0 auto;">
-        <h1 class="display-4 mb-4">Thank You!</h1>
-        <p class="lead mb-4" style="color: #4dd4c7;">{{ first_name }}, your answers have been submitted!</p>
+        <h1 class="confirmation-title stagger-in" style="animation-delay: 0.1s;">Thank You!</h1>
+        <p class="confirmation-subtitle stagger-in" style="animation-delay: 0.2s;">{{ first_name }}, your answers have been submitted!</p>
 
         {% if qr_code_path %}
-        <div class="card mb-4 mx-auto" style="border: none; background: white; padding: 25px; border-radius: 15px; max-width: 350px;">
-            <p class="mb-3" style="color: #1a1a1a; font-size: 16px; font-weight: 600;">Keep a reminder of your answers</p>
+        <div class="qr-confirmation-card mb-4 stagger-in" style="animation-delay: 0.3s;">
+            <p>Scan to view your answers</p>
             <div style="display: flex; justify-content: center;">
-                <img src="/static/{{ qr_code_path }}" alt="QR Code" style="max-width: 250px; width: 100%; border: 3px solid #ddd; border-radius: 10px;"
-                     onerror="this.parentElement.innerHTML='<p class=\'text-muted\'>QR code will be available shortly</p>';">
+                <img src="/static/{{ qr_code_path }}" alt="QR Code"
+                     onerror="this.parentElement.innerHTML='<p style=\'color: #888;\'>QR code will be available shortly</p>';">
             </div>
         </div>
         {% endif %}
 
-        <p class="text-muted mb-4">You'll be redirected to the home screen in <span id="countdown">10</span> seconds...</p>
+        <p class="text-muted mb-4 stagger-in" style="animation-delay: 0.4s;">Redirecting to home in <span id="countdown">10</span> seconds...</p>
 
-        <div style="display: flex; justify-content: center;">
-            <button type="button" class="btn btn-primary btn-lg" onclick="goHome()" style="padding: 20px 40px; font-size: 18px;">
-                Return to Home Now
+        <div class="stagger-in" style="animation-delay: 0.5s; display: flex; justify-content: center;">
+            <button type="button" class="btn btn-primary btn-lg" onclick="goHome()" style="padding: 18px 40px; font-size: 18px;">
+                Return to Home
             </button>
         </div>
     </div>
 </div>
 
 <script>
+// Confetti animation with wedding colours
+(function() {
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const colours = ['#540f3b', '#54102a', '#edd3e4', '#f9d5d5', '#6b1945', '#d4a5c0', '#3a0a28'];
+    const pieces = [];
+    const total = 120;
+
+    for (let i = 0; i < total; i++) {
+        pieces.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            w: Math.random() * 10 + 4,
+            h: Math.random() * 6 + 2,
+            colour: colours[Math.floor(Math.random() * colours.length)],
+            rotation: Math.random() * 360,
+            rotationSpeed: (Math.random() - 0.5) * 6,
+            vx: (Math.random() - 0.5) * 2,
+            vy: Math.random() * 3 + 1.5,
+            opacity: 1
+        });
+    }
+
+    let frame = 0;
+    const maxFrames = 300;
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        frame++;
+
+        const fadeStart = maxFrames * 0.7;
+        const globalAlpha = frame > fadeStart ? 1 - ((frame - fadeStart) / (maxFrames - fadeStart)) : 1;
+
+        pieces.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.rotation += p.rotationSpeed;
+            p.vy += 0.02;
+            p.vx *= 0.999;
+
+            ctx.save();
+            ctx.globalAlpha = globalAlpha * p.opacity;
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.fillStyle = p.colour;
+            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+            ctx.restore();
+        });
+
+        if (frame < maxFrames) {
+            requestAnimationFrame(draw);
+        } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.remove();
+        }
+    }
+
+    draw();
+})();
+
+// Countdown
 let countdown = 10;
 const countdownElement = document.getElementById('countdown');
-
 const timer = setInterval(function() {
     countdown--;
     countdownElement.textContent = countdown;
-
-    if (countdown <= 0) {
-        clearInterval(timer);
-        goHome();
-    }
+    if (countdown <= 0) { clearInterval(timer); goHome(); }
 }, 1000);
 
 function goHome() {
     document.querySelector('.page-content').classList.add('fade-out');
-    setTimeout(() => {
-        window.location.href = '/';
-    }, 300);
+    setTimeout(() => { window.location.href = '/'; }, 300);
 }
 </script>
 {% endblock %}

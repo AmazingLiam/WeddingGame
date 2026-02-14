@@ -1,15 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}QR Codes - Wedding Betting Game{% endblock %}
+{% block title %}The Hancox Wedding Sweepstake{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
 
 {% block content %}
-<div class="qr-codes-container page-content" style="padding: 30px 20px; min-height: 80vh;">
-    <div style="max-width: 600px; margin: 0 auto;">
-        <h2 class="mb-4 text-center">QR Codes</h2>
-        <p class="text-center text-muted mb-4">Select a guest to view their QR code</p>
+<div class="qr-codes-container page-content d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <div style="max-width: 600px; width: 100%; margin: 0 auto; padding: 20px;">
+        <h2 class="text-center stagger-in" style="animation-delay: 0.05s; font-family: var(--font-display); color: var(--text-heading);">QR Codes</h2>
+        <p class="text-center text-muted mb-4 stagger-in" style="animation-delay: 0.1s;">Select a guest to view their QR code</p>
 
         {% if guests %}
-        <div class="card mb-4">
+        <div class="card mb-4 stagger-in" style="animation-delay: 0.15s; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px;">
             <div class="card-body p-2">
                 <div class="guest-list">
                     {% for guest in guests %}
@@ -22,50 +25,18 @@
             </div>
         </div>
         {% else %}
-        <div class="alert alert-info text-center">
+        <div class="alert alert-info text-center stagger-in" style="animation-delay: 0.15s;">
             <p class="mb-0">No guests have submitted answers yet.</p>
         </div>
         {% endif %}
 
-        <div class="d-grid">
-            <button type="button" class="btn btn-primary btn-lg" onclick="goHome()" style="padding: 20px; font-size: 18px;">
+        <div class="d-grid stagger-in" style="animation-delay: 0.2s;">
+            <button type="button" class="btn btn-primary btn-lg" onclick="goHome()">
                 Back to Home
             </button>
         </div>
     </div>
 </div>
-
-<style>
-.guest-list {
-    max-height: 50vh;
-    overflow-y: auto;
-}
-
-.guest-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 12px;
-    text-decoration: none;
-    color: var(--text-dark);
-    transition: background-color 0.2s ease;
-}
-
-.guest-item:hover {
-    background-color: rgba(185, 213, 213, 0.3);
-}
-
-.guest-name {
-    font-weight: 500;
-    font-size: 16px;
-}
-
-.guest-arrow {
-    font-size: 24px;
-    color: #999;
-    font-weight: 300;
-}
-</style>
 
 <script>
 function goHome() {

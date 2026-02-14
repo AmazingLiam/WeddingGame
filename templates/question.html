@@ -6,78 +6,71 @@
 {% block footer %}{% endblock %}
 
 {% block content %}
-<div class="question-container page-content d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+<div class="question-container page-content d-flex align-items-center justify-content-center" style="min-height: 100vh;">
     <div style="width: 100%; max-width: 900px; padding: 20px;">
-        <!-- Progress bar -->
-        <div class="progress-container mb-4">
-            {% set progress = ((question_num + 1) / total_questions * 100) | int %}
-            <div class="progress-label">Question {{ question_num + 1 }} of {{ total_questions }}</div>
-            <div class="progress" style="height: 8px;">
-                <div class="progress-bar" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
+        <!-- Dot progress -->
+        <div class="progress-dots">
+            {% for i in range(total_questions) %}
+            <div class="progress-dot {% if i < question_num %}completed{% elif i == question_num %}current{% endif %}"></div>
+            {% endfor %}
         </div>
 
-        <!-- Question text -->
-        <h2 class="mb-4">{{ question.question_text }}</h2>
+        <!-- Question -->
+        <h2 class="question-text stagger-in" style="animation-delay: 0.05s;">{{ question.question_text }}</h2>
+        <p class="question-quip stagger-in" style="animation-delay: 0.1s;">{{ quip }}</p>
 
-        <!-- Guest quip -->
-        <p class="text-muted">{{ quip }}</p>
-
-        <!-- Input section -->
-        <form id="answerForm" style="margin: 40px 0;">
+        <!-- Input -->
+        <form id="answerForm" class="stagger-in" style="animation-delay: 0.15s; margin: 30px 0;">
             {% if question.question_type == 'time' %}
-                <!-- Time slider input -->
-                <div class="mb-4">
-                    <label for="timeSlider" class="form-label">Select time:</label>
+            <div class="mb-4">
+                <label for="timeSlider" class="form-label">Select time:</label>
+                <div class="slider-wrapper">
+                    <div class="slider-floating-value" id="floatingValue">--:--</div>
                     <input type="range" class="form-range" id="timeSlider"
                            min="0" max="100" value="50"
                            data-min-time="{{ question.min or '00:00' }}"
                            data-max-time="{{ question.max or '23:59' }}"
                            style="height: 30px;">
-                    <div class="d-flex justify-content-between mt-2">
-                        <span class="form-text">{{ question.min or '00:00' }}</span>
-                        <span id="timeValue" style="font-weight: bold; font-size: 24px; color: #4dd4c7;">--:--</span>
-                        <span class="form-text">{{ question.max or '23:59' }}</span>
-                    </div>
-                    <input type="hidden" id="timeInput" value="{{ current_answer }}">
                 </div>
+                <div class="slider-labels">
+                    <span class="slider-min">{{ question.min or '00:00' }}</span>
+                    <span class="slider-max">{{ question.max or '23:59' }}</span>
+                </div>
+                <input type="hidden" id="timeInput" value="{{ current_answer }}">
+            </div>
             {% else %}
-                <!-- Number slider input -->
-                {% set min_val = question.min if question.min is not none else 0 %}
-                {% set max_val = question.max if question.max is not none else 100 %}
-                {% set mid_val = ((min_val + max_val) / 2) | int %}
-                <div class="mb-4">
-                    <label for="numberSlider" class="form-label">Select your guess:</label>
+            {% set min_val = question.min if question.min is not none else 0 %}
+            {% set max_val = question.max if question.max is not none else 100 %}
+            {% set mid_val = ((min_val + max_val) / 2) | int %}
+            <div class="mb-4">
+                <label for="numberSlider" class="form-label">Select your guess:</label>
+                <div class="slider-wrapper">
+                    <div class="slider-floating-value" id="floatingValue">{{ current_answer or mid_val }}</div>
                     <input type="range" class="form-range" id="numberSlider"
-                           min="{{ min_val }}"
-                           max="{{ max_val }}"
+                           min="{{ min_val }}" max="{{ max_val }}"
                            value="{{ current_answer or mid_val }}"
                            style="height: 30px;">
-                    <div class="slider-labels mt-2">
-                        <span class="slider-min">{{ min_val }}</span>
-                        <span id="sliderValue" class="slider-value">{{ current_answer or mid_val }}</span>
-                        <span class="slider-max">{{ max_val }}</span>
-                    </div>
-                    <small class="form-text d-block text-center mt-2">{{ question.unit }}</small>
-                    <input type="hidden" id="numberInput" value="{{ current_answer or mid_val }}">
                 </div>
+                <div class="slider-labels">
+                    <span class="slider-min">{{ min_val }}</span>
+                    <span class="slider-max">{{ max_val }}</span>
+                </div>
+                <div class="slider-unit">{{ question.unit }}</div>
+                <input type="hidden" id="numberInput" value="{{ current_answer or mid_val }}">
+            </div>
             {% endif %}
         </form>
 
-        <!-- Navigation buttons -->
-        <div class="d-grid gap-3 mb-3">
-            <button type="button" class="btn btn-primary btn-lg" onclick="nextQuestion()" style="padding: 20px; font-size: 18px;">
-                {% if question_num + 1 < total_questions %}
-                    Next Question
-                {% else %}
-                    Review Answers
-                {% endif %}
+        <!-- Nav buttons -->
+        <div class="d-grid gap-3 mb-3 stagger-in" style="animation-delay: 0.2s;">
+            <button type="button" class="btn btn-primary btn-lg" onclick="nextQuestion()" style="padding: 18px; font-size: 18px;">
+                {% if question_num + 1 < total_questions %}Next Question{% else %}Review Answers{% endif %}
             </button>
         </div>
 
-        <div class="d-grid gap-3">
+        <div class="d-grid gap-3 stagger-in" style="animation-delay: 0.25s;">
             {% if question_num > 0 %}
-            <button type="button" class="btn btn-outline-secondary btn-lg" onclick="previousQuestion()" style="padding: 15px; font-size: 16px;">
+            <button type="button" class="btn btn-outline-secondary btn-lg" onclick="previousQuestion()" style="padding: 14px; font-size: 16px;">
                 Previous Question
             </button>
             {% endif %}
@@ -88,7 +81,7 @@
     </div>
 </div>
 
-<!-- Custom Cancel Modal -->
+<!-- Cancel Modal -->
 <div class="modal-overlay" id="cancelModal">
     <div class="custom-modal">
         <h4>Cancel Game?</h4>
@@ -106,18 +99,57 @@ const questionNum = {{ question_num }};
 const totalQuestions = {{ total_questions }};
 const questionType = '{{ question.question_type }}';
 
-// Page transition helper
 function navigateWithFade(url) {
     document.querySelector('.page-content').classList.add('fade-out');
-    setTimeout(() => {
-        window.location.href = url;
-    }, 300);
+    setTimeout(() => { window.location.href = url; }, 300);
+}
+
+// Slider position tracking for floating value and filled track
+let lastValue = 0;
+let lastTime = Date.now();
+let speedGlowTimeout = null;
+
+function updateSliderUI(slider, displayValue) {
+    const min = parseFloat(slider.min);
+    const max = parseFloat(slider.max);
+    const val = parseFloat(slider.value);
+    const pct = ((val - min) / (max - min)) * 100;
+
+    // Update filled track
+    slider.style.setProperty('--slider-progress', pct + '%');
+
+    // Position floating value above thumb
+    const floatingEl = document.getElementById('floatingValue');
+    const sliderRect = slider.getBoundingClientRect();
+    const thumbOffset = (pct / 100) * sliderRect.width;
+    floatingEl.style.left = thumbOffset + 'px';
+    floatingEl.textContent = displayValue;
+
+    // Speed-reactive glow
+    const now = Date.now();
+    const dt = now - lastTime;
+    const dv = Math.abs(val - lastValue);
+    const speed = dt > 0 ? dv / dt : 0;
+
+    if (speed > 0.3) {
+        floatingEl.classList.add('speed-glow');
+        clearTimeout(speedGlowTimeout);
+        speedGlowTimeout = setTimeout(() => {
+            floatingEl.classList.remove('speed-glow');
+        }, 200);
+    }
+
+    lastValue = val;
+    lastTime = now;
+
+    // Haptic feedback
+    if (navigator.vibrate && dv > 0) {
+        navigator.vibrate(1);
+    }
 }
 
 {% if question.question_type == 'time' %}
-// Time slider logic
 const timeSlider = document.getElementById('timeSlider');
-const timeValue = document.getElementById('timeValue');
 const timeInput = document.getElementById('timeInput');
 
 function timeToMinutes(timeStr) {
@@ -128,7 +160,7 @@ function timeToMinutes(timeStr) {
 function minutesToTime(minutes) {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+    return hours.toString().padStart(2, '0') + ':' + mins.toString().padStart(2, '0');
 }
 
 const minTime = timeSlider.dataset.minTime || '00:00';
@@ -141,11 +173,10 @@ function updateTimeDisplay() {
     const sliderValue = parseInt(timeSlider.value);
     const currentMinutes = minMinutes + Math.round((sliderValue / 100) * range);
     const timeStr = minutesToTime(currentMinutes);
-    timeValue.textContent = timeStr;
     timeInput.value = timeStr;
+    updateSliderUI(timeSlider, timeStr);
 }
 
-// Set initial value
 const savedAnswer = '{{ current_answer }}';
 if (savedAnswer) {
     const savedMinutes = timeToMinutes(savedAnswer);
@@ -155,58 +186,39 @@ if (savedAnswer) {
     timeSlider.value = 50;
 }
 updateTimeDisplay();
-
 timeSlider.addEventListener('input', updateTimeDisplay);
 
-function getAnswer() {
-    return timeInput.value;
-}
+function getAnswer() { return timeInput.value; }
 
 {% else %}
-// Number slider logic
 const numberSlider = document.getElementById('numberSlider');
-const sliderValue = document.getElementById('sliderValue');
 const numberInput = document.getElementById('numberInput');
 
 function updateNumberDisplay() {
-    sliderValue.textContent = numberSlider.value;
     numberInput.value = numberSlider.value;
+    updateSliderUI(numberSlider, numberSlider.value);
 }
 
+updateNumberDisplay();
 numberSlider.addEventListener('input', updateNumberDisplay);
 
-function getAnswer() {
-    return numberInput.value;
-}
+function getAnswer() { return numberInput.value; }
 {% endif %}
 
 async function saveAnswer() {
     const answer = getAnswer();
-
-    if (!answer) {
-        alert('Please select an answer');
-        return false;
-    }
-
+    if (!answer) { alert('Please select an answer'); return false; }
     try {
-        const response = await fetch(`/answer/${questionId}`, {
+        const response = await fetch('/answer/' + questionId, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
-            body: JSON.stringify({
-                answer: answer
-            })
+            body: JSON.stringify({ answer: answer })
         });
-
-        if (response.ok) {
-            return true;
-        } else {
-            const data = await response.json();
-            alert(data.error || 'Error saving answer');
-            return false;
-        }
+        if (response.ok) return true;
+        const data = await response.json();
+        alert(data.error || 'Error saving answer');
+        return false;
     } catch (error) {
         console.error('Error saving answer:', error);
         alert('Error saving answer');
@@ -217,7 +229,7 @@ async function saveAnswer() {
 async function nextQuestion() {
     if (await saveAnswer()) {
         if (questionNum + 1 < totalQuestions) {
-            navigateWithFade(`/question/${questionNum + 1}`);
+            navigateWithFade('/question/' + (questionNum + 1));
         } else {
             navigateWithFade('/summary');
         }
@@ -225,22 +237,11 @@ async function nextQuestion() {
 }
 
 function previousQuestion() {
-    if (questionNum > 0) {
-        navigateWithFade(`/question/${questionNum - 1}`);
-    }
+    if (questionNum > 0) navigateWithFade('/question/' + (questionNum - 1));
 }
 
-function showCancelModal() {
-    document.getElementById('cancelModal').classList.add('active');
-}
-
-function hideCancelModal() {
-    document.getElementById('cancelModal').classList.remove('active');
-}
-
-function confirmCancel() {
-    hideCancelModal();
-    navigateWithFade('/');
-}
+function showCancelModal() { document.getElementById('cancelModal').classList.add('active'); }
+function hideCancelModal() { document.getElementById('cancelModal').classList.remove('active'); }
+function confirmCancel() { hideCancelModal(); navigateWithFade('/'); }
 </script>
 {% endblock %}

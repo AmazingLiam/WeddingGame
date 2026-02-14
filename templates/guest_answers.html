@@ -1,57 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}The Hancox Wedding Sweepstake{% endblock %}
+{% block title %}{{ guest.full_name }} - Answers{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
 
 {% block content %}
-<div class="answers-container" style="padding: 20px 15px; min-height: 100vh;">
+<div class="answers-container page-content">
     <div style="max-width: 500px; margin: 0 auto;">
-        <h2 class="mb-4 text-center" style="font-size: 1.5rem;">{{ guest.full_name }}</h2>
+        <h2 class="answers-header">{{ guest.full_name }}</h2>
 
-        <div class="card mb-4">
-            <div class="card-body p-2">
-                {% for answer in answers %}
-                <div class="answer-row {% if not loop.last %}border-bottom{% endif %} py-2 px-1">
-                    <div class="answer-label">{{ answer.short_label }}</div>
-                    <div class="answer-value">
-                        {{ answer.answer }}{% if answer.unit and answer.type != 'time' %} {{ answer.unit }}{% endif %}
-                    </div>
+        <div class="answers-card">
+            {% for answer in answers %}
+            <div class="answer-row stagger-in" style="animation-delay: {{ loop.index0 * 0.05 }}s;">
+                <div class="answer-label">{{ answer.short_label }}</div>
+                <div class="answer-value">
+                    {{ answer.answer }}{% if answer.unit and answer.type != 'time' %} {{ answer.unit }}{% endif %}
                 </div>
-                {% endfor %}
             </div>
+            {% endfor %}
         </div>
 
-        <div class="guest-answers-reminder" style="margin-top: 30px; text-align: center; padding: 15px; background: rgba(77, 212, 199, 0.25); border-radius: 10px; border: 1px solid rgba(77, 212, 199, 0.4);">
-            <p style="font-size: 0.9rem; margin: 0;">
-                <strong style="color: #4dd4c7;">Keep this page open!</strong><br>
-                <span style="font-size: 0.85rem; color: #e0e0e0;">Share and compare your answers with other guests</span>
-            </p>
+        <div class="answers-reminder">
+            <strong>Keep this page open!</strong><br>
+            <span>Share and compare your answers with other guests</span>
         </div>
     </div>
 </div>
-
-<style>
-.answer-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-}
-
-.answer-label {
-    font-weight: 600;
-    color: #e0e0e0;
-    font-size: 0.9rem;
-    flex: 1;
-}
-
-.answer-value {
-    background: #4dd4c7;
-    color: #1a1a1a;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    white-space: nowrap;
-}
-</style>
 {% endblock %}

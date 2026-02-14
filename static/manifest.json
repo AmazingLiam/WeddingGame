@@ -4,9 +4,9 @@
   "description": "Make your predictions for Fran & Liam's wedding!",
   "start_url": "/",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#02403d",
-  "theme_color": "#02403d",
+  "orientation": "any",
+  "background_color": "#0e0f1f",
+  "theme_color": "#0e0f1f",
   "icons": [
     {
       "src": "/static/images/icon-192.png",

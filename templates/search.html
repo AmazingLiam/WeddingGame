@@ -1,39 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}Wedding Betting Game - Find Your Name{% endblock %}
+{% block title %}The Hancox Wedding Sweepstake{% endblock %}
 
 {% block navbar %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block content %}
-<div class="search-container page-content d-flex align-items-center justify-content-center" style="min-height: 80vh;">
-    <div style="width: 100%; max-width: 500px; padding: 20px;">
-        <h2 class="text-center mb-4">Find Your Name</h2>
+<div class="search-container page-content d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <div class="search-inner">
+        <h2 class="search-title stagger-in" style="animation-delay: 0.05s;">Find Your Name</h2>
 
-        <div class="mb-3">
+        <div class="mb-3 stagger-in" style="animation-delay: 0.1s;">
             <label for="nameInput" class="form-label">Search for your name:</label>
-            <input type="text" class="form-control search-input" id="nameInput" placeholder="Start typing..." style="font-size: 18px; padding: 15px;">
+            <input type="text" class="form-control search-input" id="nameInput" placeholder="Start typing..." autocomplete="off">
         </div>
 
-        <div id="suggestions" class="list-group" style="max-height: 400px; overflow-y: auto; display: none;">
+        <div id="suggestions" class="list-group search-suggestions" style="display: none;">
             <!-- Suggestions will appear here -->
         </div>
 
-        <div id="no-match" class="alert alert-warning mt-3" style="display: none;">
+        <div id="no-match" class="alert alert-warning mt-3 search-no-match" style="display: none;">
             <p><strong>Name not found</strong></p>
             <p class="text-muted mb-3">Enter your name manually below:</p>
             <div class="row g-2">
                 <div class="col">
-                    <input type="text" class="form-control" id="manualFirstName" placeholder="First name" style="font-size: 16px; padding: 12px;">
+                    <input type="text" class="form-control search-manual-input" id="manualFirstName" placeholder="First name">
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control" id="manualLastName" placeholder="Last name" style="font-size: 16px; padding: 12px;">
+                    <input type="text" class="form-control search-manual-input" id="manualLastName" placeholder="Last name">
                 </div>
             </div>
             <button type="button" class="btn btn-warning w-100 mt-2" onclick="submitManualEntry()">Continue with this name</button>
         </div>
 
-        <button type="button" class="btn btn-secondary w-100 mt-4" onclick="goBack()">Back</button>
+        <button type="button" class="btn btn-outline-secondary w-100 mt-4 stagger-in" style="animation-delay: 0.15s;" onclick="goBack()">Back</button>
     </div>
 </div>
 
@@ -83,8 +83,6 @@ document.getElementById('nameInput').addEventListener('input', function(e) {
                     const button = document.createElement('button');
                     button.type = 'button';
                     button.className = 'list-group-item list-group-item-action';
-                    button.style.fontSize = '18px';
-                    button.style.padding = '15px';
                     button.textContent = guest.full_name || `${guest.first_name} ${guest.last_name}`;
                     button.onclick = function(e) {
                         e.preventDefault();

@@ -2,6 +2,7 @@ import os
 import random
 import secrets
 import qrcode
+from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from datetime import datetime
 from functools import wraps
@@ -61,24 +62,76 @@ def admin_required(f):
 # ============================================================================
 
 def generate_guest_qr(guest_id, guest_name):
-    """Generate a QR code for a guest's answers"""
+    """Generate a QR code for a guest's answers with F+L centre overlay"""
     # Create unique token
     token = secrets.token_urlsafe(16)
 
     # Create QR code URL
     url = f"{Config.BASE_URL}/answers/{token}"
 
-    # Generate QR code image
+    # Generate QR code with HIGH error correction to allow centre overlay
     qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        version=None,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=10,
         border=4,
     )
     qr.add_data(url)
     qr.make(fit=True)
 
-    img = qr.make_image(fill_color="black", back_color="white")
+    img = qr.make_image(fill_color="#0e0f1f", back_color="white").convert('RGBA')
+
+    # Add F+L overlay in the centre
+    try:
+        img_w, img_h = img.size
+        # Centre circle size — ~18% of QR code width (safe with ERROR_CORRECT_H)
+        circle_radius = int(img_w * 0.09)
+        centre_x, centre_y = img_w // 2, img_h // 2
+
+        # Create overlay with transparent background
+        overlay = Image.new('RGBA', img.size, (0, 0, 0, 0))
+        draw = ImageDraw.Draw(overlay)
+
+        # Draw white circle background with slight border
+        draw.ellipse(
+            [centre_x - circle_radius - 2, centre_y - circle_radius - 2,
+             centre_x + circle_radius + 2, centre_y + circle_radius + 2],
+            fill=(14, 15, 31, 255)  # groom-suit colour border
+        )
+        draw.ellipse(
+            [centre_x - circle_radius, centre_y - circle_radius,
+             centre_x + circle_radius, centre_y + circle_radius],
+            fill=(255, 255, 255, 255)
+        )
+
+        # Draw "F+L" text
+        font_size = int(circle_radius * 0.8)
+        try:
+            # Try to use bundled Cormorant Garamond
+            font_path = os.path.join('static', 'fonts', 'Cormorant_Garamond,Outfit',
+                                     'Cormorant_Garamond', 'static', 'CormorantGaramond-SemiBold.ttf')
+            font = ImageFont.truetype(font_path, font_size)
+        except (IOError, OSError):
+            try:
+                font = ImageFont.truetype("arial.ttf", font_size)
+            except (IOError, OSError):
+                font = ImageFont.load_default()
+
+        text = "F+L"
+        text_bbox = draw.textbbox((0, 0), text, font=font)
+        text_w = text_bbox[2] - text_bbox[0]
+        text_h = text_bbox[3] - text_bbox[1]
+        text_x = centre_x - text_w // 2
+        text_y = centre_y - text_h // 2 - text_bbox[1]  # Adjust for font baseline
+
+        draw.text((text_x, text_y), text, fill=(84, 15, 59, 255), font=font)  # confetti-dark colour
+
+        # Composite overlay onto QR code
+        img = Image.alpha_composite(img, overlay)
+        img = img.convert('RGB')
+    except Exception as e:
+        print(f"Warning: Could not add F+L overlay to QR code: {e}")
+        img = img.convert('RGB')
 
     # Save to file
     filename = f"{token}.png"

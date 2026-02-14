@@ -1,3 +1,3 @@
 #!/bin/bash
-echo "Starting Wedding Betting Game..."
+echo "Starting The Hancox Wedding Sweepstake..."
 python app.py
