@@ -9,6 +9,7 @@ Wedding Betting Game — a Flask web app where wedding guests predict wedding da
 - **Backend:** Python 3.7+ / Flask 3.0.0 / SQLite3
 - **Frontend:** Jinja2 templates, Bootstrap 5.3.0 (bundled locally), Vanilla ES6 JavaScript, Fuse.js (bundled locally)
 - **Deployment:** Android tablet via Termux + `start.sh`, or Windows via `start.bat`. Local network (0.0.0.0:5000)
+- **Kiosk browser:** **Fully Kiosk Browser** (F-Droid) used on tablet — hides status bar, time, WiFi, battery. Point at `http://localhost:5000`.
 - **PWA:** Installable as standalone app (no browser chrome) via `manifest.json` + service worker
 
 ## Project Structure
@@ -26,7 +27,7 @@ static/
   images/        — background.jpg, icon-192.png, icon-512.png (PWA icons)
   manifest.json  — PWA manifest (display: standalone)
   sw.js          — Service worker for PWA installability
-templates/       — 16 Jinja2 templates extending base.html
+templates/       — 17 Jinja2 templates extending base.html (added admin_guests.html)
 ```
 
 ## Commands
@@ -74,6 +75,11 @@ Four tables: `guests` (id, name, submission status, QR token), `questions` (text
 - CDN dependencies bundled locally in `static/css/` and `static/js/` (no internet required)
 - Fullscreen API triggered on guest "Start" button as backup for non-PWA access
 - Anti-accidental-exit CSS: `overscroll-behavior: none`, `user-select: none` in standalone mode
+- Admin session is permanent (24 h) — `session.permanent = True` + `app.permanent_session_lifetime = timedelta(hours=24)`
+- Submitted guests are locked on the search page — `has_submitted` returned by `search_guests()`, grayed out in UI with in-page banner instead of browser alert
+- Logout uses a confirmation modal defined in `base.html` (shared by navbar ✖ and dashboard button); functions `showLogoutModal()` / `hideLogoutModal()` are global
+- `all_answered` flag passed from question route to template — drives "Back to Review" shortcut button when editing a previously answered question
+- `/admin/guests` route + `admin_guests.html` — lists all guests, submitted ones have a View QR modal
 
 ## Color Scheme
 
@@ -87,8 +93,8 @@ Primary (Dark Teal) `#02403d`, Secondary (Dark Blue) `#143850`, Accent (Mauve) `
 2. In Termux: `pkg update && pkg install python && pip install flask qrcode python-dotenv pillow`
 3. Transfer project folder to tablet
 4. Run: `bash start.sh` (or `python app.py`)
-5. Open Chrome → `http://localhost:5000` → Chrome menu → "Install app"
-6. App launches from home screen in standalone mode (no browser chrome)
+5. Open **Fully Kiosk Browser** (F-Droid) → point at `http://localhost:5000` — hides status bar fully
+6. (Alternative) Open Chrome → `http://localhost:5000` → Chrome menu → "Install app" for standalone PWA mode
 
 ## Testing
 
