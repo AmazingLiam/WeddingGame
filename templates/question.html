@@ -24,13 +24,17 @@
             {% if question.question_type == 'time' %}
             <div class="mb-4">
                 <label for="timeSlider" class="form-label">Select time:</label>
-                <div class="slider-wrapper">
-                    <div class="slider-floating-value" id="floatingValue">--:--</div>
-                    <input type="range" class="form-range" id="timeSlider"
-                           min="0" max="100" value="50"
-                           data-min-time="{{ question.min or '00:00' }}"
-                           data-max-time="{{ question.max or '23:59' }}"
-                           style="height: 30px;">
+                <div class="slider-nudge-row">
+                    <button class="nudge-btn" id="timeMinus" type="button" aria-label="Decrease">−</button>
+                    <div class="slider-wrapper">
+                        <div class="slider-floating-value" id="floatingValue">--:--</div>
+                        <input type="range" class="form-range" id="timeSlider"
+                               min="0" max="100" value="50"
+                               data-min-time="{{ question.min or '00:00' }}"
+                               data-max-time="{{ question.max or '23:59' }}"
+                               style="height: 30px;">
+                    </div>
+                    <button class="nudge-btn" id="timePlus" type="button" aria-label="Increase">+</button>
                 </div>
                 <div class="slider-labels">
                     <span class="slider-min">{{ question.min or '00:00' }}</span>
@@ -44,12 +48,16 @@
             {% set mid_val = ((min_val + max_val) / 2) | int %}
             <div class="mb-4">
                 <label for="numberSlider" class="form-label">Select your guess:</label>
-                <div class="slider-wrapper">
-                    <div class="slider-floating-value" id="floatingValue">{{ current_answer or mid_val }}</div>
-                    <input type="range" class="form-range" id="numberSlider"
-                           min="{{ min_val }}" max="{{ max_val }}"
-                           value="{{ current_answer or mid_val }}"
-                           style="height: 30px;">
+                <div class="slider-nudge-row">
+                    <button class="nudge-btn" id="numberMinus" type="button" aria-label="Decrease">−</button>
+                    <div class="slider-wrapper">
+                        <div class="slider-floating-value" id="floatingValue">{{ current_answer or mid_val }}</div>
+                        <input type="range" class="form-range" id="numberSlider"
+                               min="{{ min_val }}" max="{{ max_val }}"
+                               value="{{ current_answer or mid_val }}"
+                               style="height: 30px;">
+                    </div>
+                    <button class="nudge-btn" id="numberPlus" type="button" aria-label="Increase">+</button>
                 </div>
                 <div class="slider-labels">
                     <span class="slider-min">{{ min_val }}</span>
@@ -190,6 +198,50 @@ timeSlider.addEventListener('input', updateTimeDisplay);
 
 function getAnswer() { return timeInput.value; }
 
+// --- Time nudge buttons ---
+function snapToNextFiveTime(val, direction) {
+    if (direction > 0) return Math.min(maxMinutes, Math.ceil((val + 0.01) / 5) * 5);
+    return Math.max(minMinutes, Math.floor((val - 0.01) / 5) * 5);
+}
+
+function applyTimeNudge(direction, isHold) {
+    let currentMins = timeToMinutes(timeInput.value || minutesToTime(
+        minMinutes + Math.round((timeSlider.value / 100) * range)
+    ));
+    if (isHold) {
+        currentMins = snapToNextFiveTime(currentMins, direction);
+    } else {
+        currentMins = Math.min(maxMinutes, Math.max(minMinutes, currentMins + direction));
+    }
+    timeSlider.value = Math.round(((currentMins - minMinutes) / range) * 100);
+    updateTimeDisplay();
+}
+
+(function attachTimeNudge() {
+    let nudgeTimer = null, nudgeInterval = null, nudgeTriggeredHold = false;
+    function startNudge(direction) {
+        nudgeTriggeredHold = false;
+        nudgeTimer = setTimeout(() => {
+            nudgeTriggeredHold = true;
+            applyTimeNudge(direction, true);
+            nudgeInterval = setInterval(() => applyTimeNudge(direction, true), 150);
+        }, 500);
+    }
+    function stopNudge(direction) {
+        clearTimeout(nudgeTimer); clearInterval(nudgeInterval);
+        if (!nudgeTriggeredHold) applyTimeNudge(direction, false);
+    }
+    function attach(id, direction) {
+        const btn = document.getElementById(id);
+        btn.addEventListener('pointerdown', () => startNudge(direction));
+        btn.addEventListener('pointerup', () => stopNudge(direction));
+        btn.addEventListener('pointercancel', () => { clearTimeout(nudgeTimer); clearInterval(nudgeInterval); nudgeTriggeredHold = true; });
+        btn.addEventListener('pointerleave', () => { clearTimeout(nudgeTimer); clearInterval(nudgeInterval); nudgeTriggeredHold = true; });
+    }
+    attach('timeMinus', -1);
+    attach('timePlus', 1);
+})();
+
 {% else %}
 const numberSlider = document.getElementById('numberSlider');
 const numberInput = document.getElementById('numberInput');
@@ -203,6 +255,49 @@ updateNumberDisplay();
 numberSlider.addEventListener('input', updateNumberDisplay);
 
 function getAnswer() { return numberInput.value; }
+
+// --- Number nudge buttons ---
+function snapToNextFiveNum(val, direction, min, max) {
+    if (direction > 0) return Math.min(max, Math.ceil((val + 0.01) / 5) * 5);
+    return Math.max(min, Math.floor((val - 0.01) / 5) * 5);
+}
+
+function applyNumberNudge(direction, isHold) {
+    const min = parseFloat(numberSlider.min), max = parseFloat(numberSlider.max);
+    let val = parseFloat(numberSlider.value);
+    if (isHold) {
+        val = snapToNextFiveNum(val, direction, min, max);
+    } else {
+        val = Math.min(max, Math.max(min, val + direction));
+    }
+    numberSlider.value = val;
+    updateNumberDisplay();
+}
+
+(function attachNumberNudge() {
+    let nudgeTimer = null, nudgeInterval = null, nudgeTriggeredHold = false;
+    function startNudge(direction) {
+        nudgeTriggeredHold = false;
+        nudgeTimer = setTimeout(() => {
+            nudgeTriggeredHold = true;
+            applyNumberNudge(direction, true);
+            nudgeInterval = setInterval(() => applyNumberNudge(direction, true), 150);
+        }, 500);
+    }
+    function stopNudge(direction) {
+        clearTimeout(nudgeTimer); clearInterval(nudgeInterval);
+        if (!nudgeTriggeredHold) applyNumberNudge(direction, false);
+    }
+    function attach(id, direction) {
+        const btn = document.getElementById(id);
+        btn.addEventListener('pointerdown', () => startNudge(direction));
+        btn.addEventListener('pointerup', () => stopNudge(direction));
+        btn.addEventListener('pointercancel', () => { clearTimeout(nudgeTimer); clearInterval(nudgeInterval); nudgeTriggeredHold = true; });
+        btn.addEventListener('pointerleave', () => { clearTimeout(nudgeTimer); clearInterval(nudgeInterval); nudgeTriggeredHold = true; });
+    }
+    attach('numberMinus', -1);
+    attach('numberPlus', 1);
+})();
 {% endif %}
 
 async function saveAnswer() {

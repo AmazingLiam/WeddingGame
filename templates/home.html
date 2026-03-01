@@ -15,15 +15,14 @@
             <button type="button" class="btn btn-lg start-button mb-4" onclick="startGame()">
                 Start
             </button>
+
+            <button type="button" class="qr-codes-inline" onclick="openQRModal()">
+                Guest QR Codes
+            </button>
         </div>
     </div>
 
     <a href="{{ url_for('admin_login') }}" class="admin-link" title="Admin">&#9881;</a>
-
-    <button type="button" class="qr-codes-link" onclick="openQRModal()" title="View QR Codes">
-        <span class="qr-icon">&#128241;</span>
-        <span class="qr-text">QR Codes</span>
-    </button>
 </div>
 
 <div class="qr-modal-overlay" id="qrModal" onclick="handleModalClick(event)">
