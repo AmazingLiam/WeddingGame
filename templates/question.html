@@ -74,6 +74,11 @@
             <button type="button" class="btn btn-primary btn-lg" onclick="nextQuestion()" style="padding: 18px; font-size: 18px;">
                 {% if question_num + 1 < total_questions %}Next Question{% else %}Review Answers{% endif %}
             </button>
+            {% if all_answered and question_num + 1 < total_questions %}
+            <button type="button" class="btn btn-outline-success btn-lg" onclick="backToReview()" style="padding: 14px; font-size: 16px;">
+                Back to Review
+            </button>
+            {% endif %}
         </div>
 
         <div class="d-grid gap-3 stagger-in" style="animation-delay: 0.25s;">
@@ -106,6 +111,7 @@ const questionId = {{ question.id }};
 const questionNum = {{ question_num }};
 const totalQuestions = {{ total_questions }};
 const questionType = '{{ question.question_type }}';
+const allAnswered = {{ 'true' if all_answered else 'false' }};
 
 function navigateWithFade(url) {
     document.querySelector('.page-content').classList.add('fade-out');
@@ -338,5 +344,11 @@ function previousQuestion() {
 function showCancelModal() { document.getElementById('cancelModal').classList.add('active'); }
 function hideCancelModal() { document.getElementById('cancelModal').classList.remove('active'); }
 function confirmCancel() { hideCancelModal(); navigateWithFade('/'); }
+
+async function backToReview() {
+    if (await saveAnswer()) {
+        navigateWithFade('/summary');
+    }
+}
 </script>
 {% endblock %}

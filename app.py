@@ -4,7 +4,7 @@ import secrets
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, send_from_directory
 
@@ -15,6 +15,7 @@ import database as db
 app = Flask(__name__)
 app.config['SECRET_KEY'] = Config.SECRET_KEY
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.permanent_session_lifetime = timedelta(hours=24)
 
 # Ensure directories exist
 os.makedirs(Config.QR_CODE_DIR, exist_ok=True)
@@ -266,13 +267,16 @@ def question(question_num):
         quips = Config.QUESTION_QUIPS.get(question['order_index'], [])
         quip = random.choice(quips).format(name=first_name) if quips else f"Hi, {first_name}!"
 
+        all_answered = len(session.get('answers', {})) >= len(questions)
+
         return render_template('question.html',
                              question=question,
                              question_num=question_num,
                              total_questions=len(questions),
                              guest_name=guest_name,
                              current_answer=current_answer,
-                             quip=quip)
+                             quip=quip,
+                             all_answered=all_answered)
     except Exception as e:
         print(f"Error in question route: {e}")
         import traceback
@@ -545,6 +549,7 @@ def admin_login():
 
         if password == Config.ADMIN_PASSWORD:
             session['admin'] = True
+            session.permanent = True
             return redirect(url_for('admin_dashboard'))
         else:
             return render_template('admin_login.html', error='Invalid password', admin_url=admin_url)
@@ -654,6 +659,13 @@ def admin_responses():
     return render_template('admin_responses.html',
                          questions=questions,
                          all_responses=all_responses)
+
+@app.route('/admin/guests')
+@admin_required
+def admin_guests():
+    """Guest list with QR codes for admin"""
+    guests = db.get_all_guests()
+    return render_template('admin_guests.html', guests=guests)
 
 @app.route('/admin/stats')
 @admin_required

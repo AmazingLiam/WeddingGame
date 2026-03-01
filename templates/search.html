@@ -19,6 +19,10 @@
             <!-- Suggestions will appear here -->
         </div>
 
+        <div id="submitted-banner" class="alert alert-info mt-3" style="display: none;">
+            You have already submitted your answers. Thank you!
+        </div>
+
         <div id="no-match" class="alert alert-warning mt-3 search-no-match" style="display: none;">
             <p><strong>Name not found</strong></p>
             <p class="text-muted mb-3">Enter your name manually below:</p>
@@ -82,12 +86,24 @@ document.getElementById('nameInput').addEventListener('input', function(e) {
                 guests.forEach(guest => {
                     const button = document.createElement('button');
                     button.type = 'button';
-                    button.className = 'list-group-item list-group-item-action';
-                    button.textContent = guest.full_name || `${guest.first_name} ${guest.last_name}`;
-                    button.onclick = function(e) {
-                        e.preventDefault();
-                        selectGuest(guest);
-                    };
+                    const name = guest.full_name || `${guest.first_name} ${guest.last_name}`;
+                    if (guest.has_submitted) {
+                        button.className = 'list-group-item list-group-item-action text-muted';
+                        button.style.cssText = 'opacity: 0.55; cursor: not-allowed;';
+                        button.textContent = name + ' \u2714 Submitted';
+                        button.onclick = function(e) {
+                            e.preventDefault();
+                            document.getElementById('submitted-banner').style.display = 'block';
+                        };
+                    } else {
+                        button.className = 'list-group-item list-group-item-action';
+                        button.textContent = name;
+                        button.onclick = function(e) {
+                            e.preventDefault();
+                            document.getElementById('submitted-banner').style.display = 'none';
+                            selectGuest(guest);
+                        };
+                    }
                     suggestionsDiv.appendChild(button);
                 });
                 suggestionsDiv.style.display = 'block';
