@@ -8,6 +8,11 @@
 {% block content %}
 <div class="question-container page-content d-flex align-items-center justify-content-center" style="min-height: 100vh;">
     <div style="width: 100%; max-width: 900px; padding: 20px;">
+        <!-- Toggle to grid view -->
+        <div class="text-end mb-2">
+            <a href="/questions" class="grid-toggle-link">View all &rsaquo;</a>
+        </div>
+
         <!-- Dot progress -->
         <div class="progress-dots">
             {% for i in range(total_questions) %}

@@ -92,8 +92,7 @@ async function submitAnswers() {
 }
 
 function goBack() {
-    const totalQuestions = {{ summary | length }};
-    navigateWithFade('/question/' + (totalQuestions - 1));
+    navigateWithFade('/questions');
 }
 </script>
 {% endblock %}

@@ -816,6 +816,120 @@ main.container-fluid { padding-left: 0; padding-right: 0; }
 }
 
 /* ====================================================================
+   ALL-QUESTIONS GRID PAGE (2x2 landscape layout)
+   ==================================================================== */
+.grid-page {
+    padding: 16px 20px;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center;
+}
+
+.grid-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+}
+
+.grid-quip {
+    color: var(--text-muted); font-style: italic;
+    font-size: 0.9rem; margin: 0;
+}
+
+.grid-toggle-link {
+    color: var(--text-accent); font-size: 0.8rem;
+    text-decoration: none; white-space: nowrap;
+    opacity: 0.7; transition: opacity 0.2s;
+}
+.grid-toggle-link:hover { opacity: 1; color: var(--text-accent); }
+
+.questions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.question-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 14px 16px 10px;
+    display: flex; flex-direction: column;
+    transition: border-color 0.2s ease;
+}
+.question-card:hover { border-color: var(--primary-color); }
+
+.question-card-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px;
+}
+.question-card-number {
+    background: var(--primary-color); color: white;
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+}
+.question-card-label {
+    font-family: var(--font-body);
+    font-size: 0.78rem; font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.04em;
+    line-height: 1.2;
+}
+
+.question-card-body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+.grid-floating-value {
+    font-family: 'Cinzel', 'Cormorant Garamond', serif;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-weight: 700; font-size: 1.5rem;
+    color: var(--confetti-light);
+    text-align: center;
+    position: relative;
+    pointer-events: none;
+    white-space: nowrap;
+    margin-bottom: 2px;
+}
+
+.slider-wrapper-grid { padding: 4px 0 6px; }
+
+.nudge-btn-sm {
+    width: 36px !important; height: 36px !important;
+    font-size: 1.2rem !important;
+}
+
+.grid-actions {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    max-width: 400px; margin: 0 auto; width: 100%;
+}
+
+.grid-submit-btn { width: 100%; padding: 14px !important; font-size: 17px !important; }
+
+/* Confirmation modal answer list */
+.confirm-answers-list { margin-bottom: 16px; }
+.confirm-answer-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.confirm-answer-row:last-child { border-bottom: none; }
+.confirm-answer-label {
+    font-weight: 600; color: var(--text-secondary);
+    font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em;
+}
+.confirm-answer-value {
+    background: var(--primary-color); color: white;
+    padding: 4px 12px; border-radius: 8px;
+    font-size: 0.9rem; font-weight: 700;
+    font-family: var(--font-display); letter-spacing: 0.02em;
+}
+
+/* Grid responsive — stack on portrait / small screens */
+@media (orientation: portrait), (max-width: 700px) {
+    .questions-grid { grid-template-columns: 1fr; }
+}
+
+/* ====================================================================
    CONFIRMATION PAGE
    ==================================================================== */
 .confirmation-container { padding: var(--page-padding); }
@@ -997,6 +1111,8 @@ main.container-fluid { padding-left: 0; padding-right: 0; }
     .form-range::-webkit-slider-thumb { border-color: white; }
     .form-range::-moz-range-thumb { border-color: white; }
     .summary-card-value { color: var(--accent-color); }
+    .grid-floating-value { color: var(--accent-color); }
+    .confirm-answer-value { background: var(--primary-color); }
 }
 
 /* ====================================================================

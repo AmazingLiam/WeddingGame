@@ -140,7 +140,7 @@ async function selectGuest(guest) {
             }));
             document.querySelector('.page-content').classList.add('fade-out');
             setTimeout(() => {
-                window.location.href = '/question/0';
+                window.location.href = '/questions';
             }, 300);
         } else {
             alert(data.error || 'Error starting game');
@@ -186,7 +186,7 @@ async function submitManualEntry() {
             }));
             document.querySelector('.page-content').classList.add('fade-out');
             setTimeout(() => {
-                window.location.href = '/question/0';
+                window.location.href = '/questions';
             }, 300);
         } else {
             alert(data.error || 'Error starting game');

@@ -229,6 +229,72 @@ def start_game():
         traceback.print_exc()
         return jsonify({'error': f'Server error: {str(e)}'}), 500
 
+@app.route('/questions')
+def questions_all():
+    """Display all questions on a single 2x2 grid page"""
+    try:
+        if 'guest_id' not in session:
+            return redirect(url_for('home'))
+
+        questions = db.get_questions()
+        config_questions = {q['order']: q for q in Config.QUESTIONS}
+
+        # Merge min/max from config into each question
+        questions_data = []
+        for q in questions:
+            q_data = dict(q)
+            if q['order_index'] in config_questions:
+                cfg = config_questions[q['order_index']]
+                q_data['min'] = cfg.get('min')
+                q_data['max'] = cfg.get('max')
+            questions_data.append(q_data)
+
+        # Get guest name
+        if session.get('guest_id') == -1:
+            guest_name = session.get('guest_name', 'Guest')
+        else:
+            guest = db.get_guest_by_id(session['guest_id'])
+            guest_name = guest['full_name'] if guest else session.get('guest_name', 'Guest')
+
+        # Existing answers from session
+        answers = session.get('answers', {})
+
+        # Pick a random quip
+        first_name = guest_name.split()[0] if guest_name else 'Guest'
+        summary_quip = random.choice(Config.SUMMARY_QUIPS).format(name=first_name)
+
+        return render_template('questions_all.html',
+                             questions=questions_data,
+                             guest_name=guest_name,
+                             answers=answers,
+                             quip=summary_quip)
+    except Exception as e:
+        print(f"Error in questions_all route: {e}")
+        import traceback
+        traceback.print_exc()
+        return redirect(url_for('home'))
+
+@app.route('/api/save-all-answers', methods=['POST'])
+def api_save_all_answers():
+    """Save all answers at once from the grid view"""
+    if 'guest_id' not in session:
+        return jsonify({'error': 'Session expired'}), 403
+
+    data = request.get_json()
+    answers = data.get('answers', {})
+
+    if not answers:
+        return jsonify({'error': 'No answers provided'}), 400
+
+    if 'answers' not in session:
+        session['answers'] = {}
+
+    for question_id, answer in answers.items():
+        session['answers'][str(question_id)] = answer
+
+    session.modified = True
+    return jsonify({'success': True})
+
 @app.route('/question/<int:question_num>')
 def question(question_num):
     """Display a question"""

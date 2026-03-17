@@ -27,7 +27,7 @@ static/
   images/        — background.jpg, icon-192.png, icon-512.png (PWA icons)
   manifest.json  — PWA manifest (display: standalone)
   sw.js          — Service worker for PWA installability
-templates/       — 17 Jinja2 templates extending base.html (added admin_guests.html)
+templates/       — 18 Jinja2 templates extending base.html (includes questions_all.html 2x2 grid)
 ```
 
 ## Commands
@@ -55,6 +55,10 @@ bash start.sh                     # Android/Termux startup script
 Four tables: `guests` (id, name, submission status, QR token), `questions` (text, type, order, short_label, actual_answer), `responses` (guest_id, question_id, answer), `admin_config` (key-value pairs)
 
 **Migration:** `database.py` auto-adds `short_label` column to existing databases via `ALTER TABLE` in `init_db()`.
+
+## Question Flow
+
+4 questions displayed on a 2x2 grid (`/questions`) — the default entry point from search. Grid mode shows all sliders simultaneously with an inline confirmation modal (no separate summary page). A "one at a time" toggle (`/question/N`) is available for accessibility, which still uses the traditional summary page flow. Both modes share session answers and can be switched mid-game.
 
 ## Coding Conventions
 
