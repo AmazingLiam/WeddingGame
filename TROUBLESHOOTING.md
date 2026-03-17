@@ -39,7 +39,7 @@ python app.py
 3. Type: "Liam" or "Fran"
 4. **Expected:** Names appear immediately
 5. Click on a name
-6. **Expected:** Redirects to Question 1 (no error)
+6. **Expected:** Redirects to questions grid (no error)
 
 ### 3. Check Server Console
 If you see errors, they'll now show in the console with full details:

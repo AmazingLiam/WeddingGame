@@ -10,7 +10,7 @@ python app.py
 This will:
 - Create the SQLite database
 - Load all 87 guests from `data/guests.csv`
-- Load all 8 questions from `config.py`
+- Load all 4 questions from `config.py`
 - Start the server on http://localhost:5000
 
 **The app is ready!**
@@ -40,11 +40,12 @@ Edit: `data/guests.csv`
 - Example: `John,Smith`
 
 ### Change Questions
-Edit: `config.py` → QUESTIONS section
+Edit: `config.py` → QUESTIONS section (currently 4 questions shown on a 2x2 grid)
 ```python
 QUESTIONS = [
     {
         "text": "Your question here?",
+        "short_label": "Short Label",
         "type": "number",  # or "time"
         "unit": "minutes",
         "order": 1,

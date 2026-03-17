@@ -5,8 +5,8 @@ A fun and interactive betting game for wedding guests to predict the answers to 
 ## Features
 
 - 🔍 Guest search with autocomplete (90 guests)
-- 📊 5-10 customizable questions with number/time-based answers
-- 🎯 Interactive sliders and number inputs for easy answer selection
+- 📊 4 customizable questions with number/time-based answers
+- 🎯 2x2 grid layout with interactive sliders for fast throughput (~1.5 min/guest)
 - 📱 QR code generation for sharing/scanning answers
 - 📈 Real-time leaderboard with accuracy-based scoring
 - 👨‍💼 Admin interface to update actual answers from phone
@@ -52,12 +52,13 @@ Robert,Johnson
 
 ### 3. Configure Questions
 
-Edit `config.py` and update the `QUESTIONS` list (currently 8 questions):
+Edit `config.py` and update the `QUESTIONS` list (currently 4 questions — ceremony start, speech duration, thank-you count, cake cutting):
 
 ```python
 QUESTIONS = [
     {
         "text": "Your question here?",
+        "short_label": "Short Label",
         "type": "number",  # or "time"
         "unit": "minutes",
         "order": 1,
@@ -114,13 +115,12 @@ Then open your browser to: `http://localhost:5000`
 
 1. **Home Screen**: Tap "Start"
 2. **Search**: Find your name by typing
-3. **Questions**: Answer 5-10 questions (one at a time)
-   - Use slider or direct number entry
-   - Time questions in HH:MM format (e.g., 20:30)
-4. **Review**: Check all answers before submitting
-5. **Submit**: Confirm final submission
-6. **QR Code**: Scan with phone to see your answers
-7. **Leaderboard**: Check your ranking (once answers are revealed)
+3. **Questions**: Answer 4 questions on a 2x2 grid (all visible at once)
+   - Adjust sliders with nudge buttons for fine control
+   - Toggle to "one at a time" mode if preferred
+4. **Submit**: Tap "Submit Answers" → inline confirmation modal shows chosen values
+5. **QR Code**: Scan with phone to save your answers
+6. **Leaderboard**: Check your ranking (once answers are revealed)
 
 ### Admin Flow
 
@@ -154,22 +154,21 @@ All questions can be customized in `config.py`. Options:
 ```python
 {
     "text": "Question text here?",
+    "short_label": "Short Label",  # Shown on grid cards
     "type": "number" or "time",
-    "unit": "unit name (minutes, photos, etc)",
-    "order": 1-10 (display order),
-    "min": 0,           # Optional, for number questions
-    "max": 1000,        # Optional, for number questions
-    "input_hint": "0"   # Optional, placeholder text
+    "unit": "unit name (minutes, mentions, etc)",
+    "order": 1-4 (display order),
+    "min": 0,           # Min slider value (or "HH:MM" for time)
+    "max": 1000         # Max slider value (or "HH:MM" for time)
 }
 ```
 
 ### Colors & Styling
 
-Edit `static/css/style.css` to customize:
-- Colors (primary: `#d4a574`, secondary: `#8b6f47`)
-- Button styles
-- Card styling
-- Responsive breakpoints
+Edit `static/css/style.css` CSS variables at `:root` to customize:
+- Primary (Dark Teal): `#348686`
+- Accent (Confetti Dark): `#540f3b`
+- Dark mode is the default; light mode via `prefers-color-scheme: light`
 
 ### Admin Password
 
@@ -244,7 +243,7 @@ copy data/backups/wedding_backup_[timestamp].db data/wedding.db
 
 ### One Week Before
 - [ ] Load actual 90 guests into `data/guests.csv`
-- [ ] Finalize all 5-10 questions in `config.py`
+- [ ] Finalize all 4 questions in `config.py`
 - [ ] Test with 5 mock guests on your computer
 - [ ] Update admin password if desired
 
@@ -291,19 +290,22 @@ wedding-game/
 │   ├── qr_codes/            # Generated QR codes
 │   └── backups/             # Database backups
 ├── static/
-│   ├── css/style.css        # Styling
-│   ├── js/guest-flow.js     # Guest interface logic
-│   └── qr_codes/            # Served QR code images
+│   ├── css/style.css        # Styling (dark mode default)
+│   ├── css/bootstrap.min.css # Bootstrap 5.3 (bundled)
+│   ├── js/                  # bootstrap.bundle.min.js, fuse.min.js (bundled)
+│   └── images/              # Background, PWA icons
 └── templates/
     ├── base.html             # Base template
     ├── home.html             # Start screen
     ├── search.html           # Guest search
-    ├── question.html         # Question display
-    ├── summary.html          # Answer review
+    ├── questions_all.html    # 2x2 grid (default mode)
+    ├── question.html         # Single question (one-at-a-time mode)
+    ├── summary.html          # Answer review (one-at-a-time mode)
     ├── confirmation.html     # QR code display
-    ├── guest_answers.html    # View answers (QR)
+    ├── guest_answers.html    # View answers (QR scan)
     ├── admin_login.html      # Admin login
     ├── admin_dashboard.html  # Admin interface
+    ├── admin_guests.html     # Guest list with QR modals
     ├── leaderboard.html      # Live scores
     ├── admin_responses.html  # All responses
     ├── admin_stats.html      # Event statistics
@@ -389,4 +391,4 @@ Technologies used:
 
 Questions? Check the troubleshooting section above or review the code comments in `app.py` and `database.py`.
 
-Last updated: 2025-01-29
+Last updated: 2026-03-17

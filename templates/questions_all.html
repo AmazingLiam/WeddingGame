@@ -113,11 +113,11 @@ const questionsData = [
     {
         id: {{ q.id }},
         order: {{ q.order_index }},
-        type: '{{ q.question_type }}',
-        shortLabel: '{{ q.short_label or q.question_text | truncate(25, True) }}',
-        unit: '{{ q.unit }}',
-        min: '{{ q.min }}',
-        max: '{{ q.max }}'
+        type: {{ q.question_type | tojson }},
+        shortLabel: {{ (q.short_label or q.question_text | truncate(25, True)) | tojson }},
+        unit: {{ q.unit | tojson }},
+        min: {{ q.min | tojson }},
+        max: {{ q.max | tojson }}
     }{{ "," if not loop.last }}
 {% endfor %}
 ];
@@ -307,8 +307,17 @@ function hideConfirmModal() {
     document.getElementById('confirmModal').classList.remove('active');
 }
 
+let isSubmitting = false;
+
 async function confirmSubmit() {
-    hideConfirmModal();
+    if (isSubmitting) return;
+    isSubmitting = true;
+
+    // Show loading state on confirm button
+    const confirmBtn = document.querySelector('#confirmModal .btn-success');
+    const originalText = confirmBtn.textContent;
+    confirmBtn.textContent = 'Submitting...';
+    confirmBtn.disabled = true;
 
     const answers = collectAllAnswers();
 
@@ -323,6 +332,9 @@ async function confirmSubmit() {
         if (!saveResp.ok) {
             const err = await saveResp.json();
             alert(err.error || 'Error saving answers');
+            isSubmitting = false;
+            confirmBtn.textContent = originalText;
+            confirmBtn.disabled = false;
             return;
         }
 
@@ -335,21 +347,30 @@ async function confirmSubmit() {
         const data = await submitResp.json();
 
         if (submitResp.ok) {
-            const guestInfo = JSON.parse(localStorage.getItem('current_guest')) || {};
+            let guestInfo = {};
+            try { guestInfo = JSON.parse(localStorage.getItem('current_guest')) || {}; }
+            catch (e) { /* corrupted localStorage */ }
             localStorage.setItem('returning_guest', JSON.stringify({
                 full_name: data.guest_name || guestInfo.full_name,
                 qr_code_path: data.qr_code_path
             }));
+            hideConfirmModal();
             document.querySelector('.page-content').classList.add('fade-out');
             setTimeout(() => {
                 window.location.href = '/confirmation-complete?qr=' + encodeURIComponent(data.qr_code_path) + '&name=' + encodeURIComponent(data.guest_name || guestInfo.full_name);
             }, 300);
         } else {
             alert(data.error || 'Error submitting answers');
+            isSubmitting = false;
+            confirmBtn.textContent = originalText;
+            confirmBtn.disabled = false;
         }
     } catch (error) {
         console.error('Error submitting:', error);
         alert('Error submitting answers');
+        isSubmitting = false;
+        confirmBtn.textContent = originalText;
+        confirmBtn.disabled = false;
     }
 }
 

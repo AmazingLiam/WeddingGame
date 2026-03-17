@@ -280,17 +280,25 @@ def api_save_all_answers():
     if 'guest_id' not in session:
         return jsonify({'error': 'Session expired'}), 403
 
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     answers = data.get('answers', {})
 
     if not answers:
         return jsonify({'error': 'No answers provided'}), 400
 
+    # Validate against known question IDs
+    questions = db.get_questions()
+    valid_ids = {str(q['id']) for q in questions}
+
     if 'answers' not in session:
         session['answers'] = {}
 
     for question_id, answer in answers.items():
-        session['answers'][str(question_id)] = answer
+        if str(question_id) not in valid_ids:
+            continue
+        if not isinstance(answer, (str, int, float)):
+            continue
+        session['answers'][str(question_id)] = str(answer)[:50]
 
     session.modified = True
     return jsonify({'success': True})
