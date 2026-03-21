@@ -54,9 +54,6 @@
 let guestsData = [];
 
 function startGame() {
-    if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-    }
     document.querySelector('.page-content').classList.add('fade-out');
     setTimeout(() => { window.location.href = '/search'; }, 300);
 }

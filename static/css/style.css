@@ -311,10 +311,11 @@ main.container-fluid { padding-left: 0; padding-right: 0; }
     border: 2px solid rgba(255, 255, 255, 0.3);
     padding: 10px 36px;
     margin-top: 16px;
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(255, 255, 255, 0.75);
     font-family: var(--font-display);
     font-style: italic;
     font-size: 0.9rem;
+    font-weight: 700;
     letter-spacing: 0.12em;
     border-radius: 50px;
     cursor: pointer;
@@ -468,6 +469,14 @@ main.container-fluid { padding-left: 0; padding-right: 0; }
    ==================================================================== */
 .question-container { padding: var(--page-padding); }
 .question-container > div { max-width: 900px !important; width: 100% !important; }
+
+.progress-step-label {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
 
 .progress-dots {
     display: flex; justify-content: center; align-items: center;
@@ -858,6 +867,10 @@ main.container-fluid { padding-left: 0; padding-right: 0; }
     transition: border-color 0.2s ease;
 }
 .question-card:hover { border-color: var(--primary-color); }
+.question-card.active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(52, 134, 134, 0.2);
+}
 
 .question-card-header {
     display: flex; align-items: center; gap: 8px;
@@ -884,14 +897,13 @@ main.container-fluid { padding-left: 0; padding-right: 0; }
     font-variant-numeric: tabular-nums lining-nums;
     font-weight: 700; font-size: 1.5rem;
     color: var(--confetti-light);
-    text-align: center;
-    position: relative;
+    position: absolute; top: 0px;
+    transform: translateX(-50%);
     pointer-events: none;
     white-space: nowrap;
-    margin-bottom: 2px;
 }
 
-.slider-wrapper-grid { padding: 4px 0 6px; }
+.slider-wrapper-grid { padding: 28px 0 6px; }
 
 .nudge-btn-sm {
     width: 36px !important; height: 36px !important;

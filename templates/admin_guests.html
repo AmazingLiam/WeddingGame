@@ -45,11 +45,12 @@
 
 <!-- QR Code Modal -->
 <div class="modal-overlay" id="qrModal" onclick="hideQrModal()">
-    <div class="custom-modal" onclick="event.stopPropagation()">
+    <div class="custom-modal" onclick="event.stopPropagation()" style="max-width: 420px;">
         <h4 id="qrModalName" style="font-size: 1.1rem; margin-bottom: 12px;"></h4>
         <div style="text-align: center;">
-            <img id="qrModalImg" src="" alt="QR Code" style="max-width: 240px; width: 100%; border-radius: 8px;">
+            <img id="qrModalImg" src="" alt="QR Code" style="max-width: 200px; width: 100%; border-radius: 8px;">
         </div>
+        <div id="qrModalAnswers" style="margin-top: 14px;"></div>
         <div class="modal-buttons" style="margin-top: 16px;">
             <button type="button" class="btn btn-secondary" onclick="hideQrModal()">Close</button>
         </div>
@@ -57,10 +58,50 @@
 </div>
 
 <script>
-function showGuestQr(guestId, guestName, qrPath) {
+async function showGuestQr(guestId, guestName, qrPath) {
     document.getElementById('qrModalName').textContent = guestName;
     document.getElementById('qrModalImg').src = '/static/' + qrPath;
+
+    const answersEl = document.getElementById('qrModalAnswers');
+    answersEl.textContent = '';
+    const loading = document.createElement('p');
+    loading.style.cssText = 'text-align:center;color:var(--text-muted);font-size:0.85rem;';
+    loading.textContent = 'Loading answers\u2026';
+    answersEl.appendChild(loading);
+
     document.getElementById('qrModal').classList.add('active');
+
+    try {
+        const resp = await fetch('/api/admin/guest-answers/' + guestId);
+        const answers = await resp.json();
+        answersEl.textContent = '';
+        if (!answers.length) return;
+
+        const list = document.createElement('div');
+        list.className = 'confirm-answers-list';
+
+        answers.forEach(a => {
+            const val = a.type === 'time' ? a.answer : (Math.round(parseFloat(a.answer)) + ' ' + a.unit);
+            const row = document.createElement('div');
+            row.className = 'confirm-answer-row';
+
+            const label = document.createElement('span');
+            label.className = 'confirm-answer-label';
+            label.textContent = a.label;
+
+            const value = document.createElement('span');
+            value.className = 'confirm-answer-value';
+            value.textContent = val;
+
+            row.appendChild(label);
+            row.appendChild(value);
+            list.appendChild(row);
+        });
+
+        answersEl.appendChild(list);
+    } catch (e) {
+        answersEl.textContent = '';
+    }
 }
 
 function hideQrModal() {

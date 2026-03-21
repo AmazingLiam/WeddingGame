@@ -14,6 +14,7 @@
         </div>
 
         <!-- Dot progress -->
+        <p class="progress-step-label">Question {{ question_num + 1 }} of {{ total_questions }}</p>
         <div class="progress-dots">
             {% for i in range(total_questions) %}
             <div class="progress-dot {% if i < question_num %}completed{% elif i == question_num %}current{% endif %}"></div>

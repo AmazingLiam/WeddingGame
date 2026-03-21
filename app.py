@@ -741,6 +741,26 @@ def admin_guests():
     guests = db.get_all_guests()
     return render_template('admin_guests.html', guests=guests)
 
+@app.route('/api/admin/guest-answers/<int:guest_id>')
+@admin_required
+def api_admin_guest_answers(guest_id):
+    """Return a submitted guest's answers for the admin QR modal"""
+    responses = db.get_guest_responses(guest_id)
+    questions = db.get_questions()
+    questions_map = {q['id']: q for q in questions}
+    answers = []
+    for resp in responses:
+        q = questions_map.get(resp['question_id'])
+        if q:
+            answers.append({
+                'label': q.get('short_label') or q['question_text'],
+                'answer': resp['answer'],
+                'unit': q['unit'],
+                'type': q['question_type'],
+                'order': q['order_index']
+            })
+    return jsonify(sorted(answers, key=lambda x: x['order']))
+
 @app.route('/admin/stats')
 @admin_required
 def admin_stats():
