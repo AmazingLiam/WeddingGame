@@ -752,9 +752,20 @@ def api_admin_guest_answers(guest_id):
     for resp in responses:
         q = questions_map.get(resp['question_id'])
         if q:
+            if q['question_type'] == 'time':
+                try:
+                    total_minutes = int(float(resp['answer']))
+                    answer_str = f"{total_minutes // 60:02d}:{total_minutes % 60:02d}"
+                except (ValueError, TypeError):
+                    answer_str = resp['answer']
+            else:
+                try:
+                    answer_str = str(int(float(resp['answer'])))
+                except (ValueError, TypeError):
+                    answer_str = resp['answer']
             answers.append({
                 'label': q.get('short_label') or q['question_text'],
-                'answer': resp['answer'],
+                'answer': answer_str,
                 'unit': q['unit'],
                 'type': q['question_type'],
                 'order': q['order_index']

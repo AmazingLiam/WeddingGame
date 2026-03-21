@@ -6,6 +6,7 @@
 {% block footer %}{% endblock %}
 
 {% block content %}
+<div id="exit-overlay" style="position:fixed;inset:0;background:var(--bg-body);opacity:0;transition:opacity 0.35s ease;pointer-events:none;z-index:9999;"></div>
 <canvas id="confetti-canvas"></canvas>
 
 <div class="confirmation-container page-content d-flex align-items-center justify-content-center" style="min-height: 100vh;">
@@ -107,8 +108,11 @@ const timer = setInterval(function() {
 }, 1000);
 
 function goHome() {
-    document.querySelector('.page-content').classList.add('fade-out');
-    setTimeout(() => { window.location.href = '/'; }, 300);
+    clearInterval(timer);
+    const overlay = document.getElementById('exit-overlay');
+    overlay.style.pointerEvents = 'auto';
+    overlay.style.opacity = '1';
+    setTimeout(() => { window.location.href = '/'; }, 380);
 }
 </script>
 {% endblock %}

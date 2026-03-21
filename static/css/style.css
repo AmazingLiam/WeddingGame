@@ -470,14 +470,6 @@ main.container-fluid { padding-left: 0; padding-right: 0; }
 .question-container { padding: var(--page-padding); }
 .question-container > div { max-width: 900px !important; width: 100% !important; }
 
-.progress-step-label {
-    text-align: center;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-    letter-spacing: 0.05em;
-}
-
 .progress-dots {
     display: flex; justify-content: center; align-items: center;
     gap: 10px; margin-bottom: 24px;
@@ -934,6 +926,8 @@ main.container-fluid { padding-left: 0; padding-right: 0; }
     padding: 4px 12px; border-radius: 8px;
     font-size: 0.9rem; font-weight: 700;
     font-family: var(--font-display); letter-spacing: 0.02em;
+    min-width: 110px; text-align: center;
+    display: inline-flex; align-items: center; justify-content: center;
 }
 
 /* Grid responsive — stack on portrait / small screens */
