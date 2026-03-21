@@ -1,22 +1,23 @@
-# 💍 Wedding Betting Game
+# The Hancox Wedding Sweepstake
 
 A fun and interactive betting game for wedding guests to predict the answers to questions throughout your wedding day.
 
 ## Features
 
-- 🔍 Guest search with autocomplete (90 guests)
+- 🔍 Guest search with fuzzy autocomplete
 - 📊 4 customizable questions with number/time-based answers
 - 🎯 2x2 grid layout with interactive sliders for fast throughput (~1.5 min/guest)
-- 📱 QR code generation for sharing/scanning answers
-- 📈 Real-time leaderboard with accuracy-based scoring
-- 👨‍💼 Admin interface to update actual answers from phone
-- 💾 Local SQLite database (no internet required)
-- 🎮 Touch-optimized UI for tablet display
+- 📱 QR code generation per guest for scanning their own answers
+- 📈 Real-time leaderboard with accuracy-based scoring (APE)
+- 👨‍💼 Admin interface to enter actual answers and view all guest QR codes
+- 💾 Local SQLite database — no internet required on wedding day
+- 🎮 Touch-optimized UI for tablet kiosk (Fully Kiosk Browser)
+- 📲 Installable as a PWA (standalone, no browser chrome)
 
 ## System Requirements
 
 - **Python 3.7+** installed on your computer/tablet
-- **Google Pixel Tablet** (or any Android/Windows tablet)
+- **Android tablet** (or Windows tablet) running **Fully Kiosk Browser** (F-Droid)
 - **WiFi** available at your venue
 - **Port 5000** available on your device
 
@@ -38,7 +39,7 @@ This installs:
 
 ### 2. Prepare Guest List
 
-Edit `data/guests.csv` and replace the sample names with your actual 90 guests:
+Edit `data/guests.csv` and replace the sample names with your actual guests:
 
 ```csv
 first_name,last_name
@@ -89,24 +90,24 @@ Then open your browser to: `http://localhost:5000`
 
 ### On Wedding Day (Tablet)
 
-1. **Find tablet's IP address**:
-   - Windows: Open Command Prompt and type `ipconfig`
-   - Look for IPv4 Address (e.g., `192.168.1.100`)
+The server auto-detects its local IP — no manual config needed.
 
-2. **Update `config.py`** with the tablet's IP:
-   ```python
-   BASE_URL = 'http://192.168.1.100:5000'
-   ```
+1. **Start the server**:
+   - Windows: Double-click `start.bat`
+   - Android (Termux): `bash start.sh`
 
-3. **Double-click `start.bat`** (Windows) or run `python app.py`
+2. **Open Fully Kiosk Browser** → point at `http://localhost:5000`
+   - FKB hides status bar, time, WiFi, battery for a clean kiosk look
+   - Tip: Settings → Web Content → disable "Show Loading Progress Bar"
 
-4. **Access from guests' phones**:
-   - Guests visit: `http://192.168.1.100:5000` (or scan QR code in corner)
+3. **QR codes for guests' phones** point to `http://[tablet-local-ip]:5000/answers/[token]`
+   — the IP is detected automatically at startup
 
-5. **Admin interface** (groomsman):
-   - Visit: `http://192.168.1.100:5000/admin` from their phone
+4. **Admin interface** (groomsman's phone):
+   - Visit: `http://[tablet-ip]:5000/admin/login`
    - Login with your admin password
    - Update actual answers as events happen
+   - View guest QR codes and their answers
    - Check leaderboard in real-time
 
 ## How It Works
@@ -124,11 +125,12 @@ Then open your browser to: `http://localhost:5000`
 
 ### Admin Flow
 
-1. Navigate to: `http://[tablet-ip]:5000/admin`
-2. Login with admin password
+1. Navigate to: `http://[tablet-ip]:5000/admin/login`
+2. Login with admin password (session lasts 24 hours)
 3. **Dashboard**: Update actual answers as events happen
-4. **Leaderboard**: View real-time rankings
-5. **Responses**: Detailed view of all guest answers per question
+4. **Guest List**: View all guests, QR codes, and each guest's submitted answers
+5. **Leaderboard**: View real-time rankings
+6. **Responses**: Detailed view of all guest answers per question
 
 ## Scoring System
 
@@ -204,9 +206,9 @@ python database.py
 ### Guest not in list
 
 **Options**:
-1. Re-spell their name in the search (e.g., "Jon" instead of "John")
-2. Add them to `data/guests.csv` before event
-3. Manual entry feature (coming soon)
+1. Re-spell their name in the search — fuzzy search will find close matches
+2. Use **manual entry**: type any name in the search box and select "Enter manually as [name]"
+3. Add them to `data/guests.csv` and restart before the event
 
 ### QR codes don't scan
 
@@ -224,25 +226,24 @@ python database.py
 
 ## Backup & Recovery
 
-### Automated Backups
+### Manual Backup
 
-Database backups are created in `data/backups/` every 15 minutes during operation.
-
-### Manual Export
-
-From admin dashboard, use "Export Data" to download CSV of all responses.
-
-### Restore from Backup
-
-Copy backup file from `data/backups/` to `data/wedding.db`:
+Copy the database file while the server is not running:
 ```bash
-copy data/backups/wedding_backup_[timestamp].db data/wedding.db
+copy data\wedding.db data\Backups\wedding_backup_%date%.db
+```
+
+### Restore
+
+Copy any backup back to `data/wedding.db` (with the server stopped):
+```bash
+copy data\Backups\wedding_backup_[date].db data\wedding.db
 ```
 
 ## Wedding Day Setup Checklist
 
 ### One Week Before
-- [ ] Load actual 90 guests into `data/guests.csv`
+- [ ] Load all guests into `data/guests.csv`
 - [ ] Finalize all 4 questions in `config.py`
 - [ ] Test with 5 mock guests on your computer
 - [ ] Update admin password if desired
@@ -254,13 +255,12 @@ copy data/backups/wedding_backup_[timestamp].db data/wedding.db
 - [ ] Print admin password on card for groomsman
 
 ### Day Of (30 minutes before guests arrive)
-- [ ] Find tablet's IP address with `ipconfig`
-- [ ] Update `BASE_URL` in `config.py` with tablet IP
-- [ ] Start server: Double-click `start.bat` (Windows) or `python app.py`
+- [ ] Start server: Double-click `start.bat` (Windows) or `bash start.sh` (Termux)
+- [ ] Open Fully Kiosk Browser → `http://localhost:5000`
 - [ ] Test one complete guest submission
 - [ ] Place tablet on stand at entrance
 - [ ] Give groomsman:
-  - Admin URL: `http://[tablet-ip]:5000/admin`
+  - Admin URL: `http://[tablet-ip]:5000/admin/login`
   - Admin password
   - Instructions card
 
@@ -276,42 +276,73 @@ copy data/backups/wedding_backup_[timestamp].db data/wedding.db
 
 ## File Structure
 
+<!-- AUTO-GENERATED from codebase — do not edit this section manually -->
 ```
 wedding-game/
-├── app.py                    # Main Flask application
-├── database.py               # Database operations
-├── config.py                 # Configuration & questions
+├── app.py                    # Main Flask application, all routes
+├── database.py               # All SQLite operations (no raw SQL in app.py)
+├── config.py                 # Config constants, QUESTIONS, quips, credentials
 ├── requirements.txt          # Python dependencies
 ├── start.bat                 # Windows startup script
+├── start.sh                  # Android/Termux startup script
 ├── README.md                 # This file
+├── CLAUDE.md                 # AI assistant context
+├── SETUP_GUIDE.md            # Detailed setup walkthrough
+├── TROUBLESHOOTING.md        # Common issues
 ├── data/
-│   ├── wedding.db           # SQLite database (auto-created)
-│   ├── guests.csv           # Guest list (edit this)
-│   ├── qr_codes/            # Generated QR codes
-│   └── backups/             # Database backups
+│   ├── wedding.db            # SQLite database (auto-created on first run)
+│   ├── guests.csv            # Guest list (edit before wedding)
+│   ├── qr_codes/             # Generated QR code images
+│   └── Backups/              # Manual database backups
 ├── static/
-│   ├── css/style.css        # Styling (dark mode default)
-│   ├── css/bootstrap.min.css # Bootstrap 5.3 (bundled)
-│   ├── js/                  # bootstrap.bundle.min.js, fuse.min.js (bundled)
-│   └── images/              # Background, PWA icons
-└── templates/
-    ├── base.html             # Base template
-    ├── home.html             # Start screen
-    ├── search.html           # Guest search
-    ├── questions_all.html    # 2x2 grid (default mode)
-    ├── question.html         # Single question (one-at-a-time mode)
+│   ├── css/style.css         # Styling — dark palette, CSS variables, animations
+│   ├── css/bootstrap.min.css # Bootstrap 5.3 (bundled locally)
+│   ├── js/                   # bootstrap.bundle.min.js, fuse.min.js (bundled)
+│   ├── fonts/                # Cormorant Garamond, Outfit, Cinzel (bundled)
+│   ├── images/               # PWA icons (icon-192.png, icon-512.png)
+│   ├── manifest.json         # PWA manifest (display: standalone)
+│   └── sw.js                 # Service worker for PWA installability
+└── templates/                # 18 Jinja2 templates, all extend base.html
+    ├── base.html             # Shared layout, logout modal, service worker reg
+    ├── home.html             # Start screen with guest QR codes modal
+    ├── search.html           # Guest search (Fuse.js fuzzy + manual entry)
+    ├── questions_all.html    # 2x2 grid mode (default) — all 4 sliders at once
+    ├── question.html         # One-at-a-time mode with dot progress indicator
     ├── summary.html          # Answer review (one-at-a-time mode)
-    ├── confirmation.html     # QR code display
-    ├── guest_answers.html    # View answers (QR scan)
+    ├── confirmation.html     # Thank you + confetti + QR code
+    ├── guest_answers.html    # Answer view via QR scan token
+    ├── qr_codes.html         # QR code menu
+    ├── qr_code_display.html  # Single guest QR display
     ├── admin_login.html      # Admin login
-    ├── admin_dashboard.html  # Admin interface
-    ├── admin_guests.html     # Guest list with QR modals
+    ├── admin_dashboard.html  # Admin — update actual answers
+    ├── admin_guests.html     # Admin — guest list, QR codes, submitted answers
     ├── leaderboard.html      # Live scores
-    ├── admin_responses.html  # All responses
+    ├── admin_responses.html  # All responses per question
     ├── admin_stats.html      # Event statistics
     ├── 404.html              # Page not found
     └── 500.html              # Server error
 ```
+<!-- END AUTO-GENERATED -->
+
+## Commands Reference
+
+<!-- AUTO-GENERATED from requirements.txt, start.bat, start.sh -->
+| Command | Platform | Description |
+|---------|----------|-------------|
+| `pip install -r requirements.txt` | All | Install Python dependencies |
+| `python app.py` | All | Run the server on 0.0.0.0:5000 |
+| `python database.py` | All | Initialise / reset the database |
+| `start.bat` | Windows | One-click server start |
+| `bash start.sh` | Android/Termux | Start server on tablet |
+
+**Dependencies** (`requirements.txt`):
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `Flask` | 3.0.0 | Web framework |
+| `qrcode[pil]` | 7.4.2 | QR code generation (includes Pillow) |
+| `python-dotenv` | 1.0.0 | `.env` file support |
+<!-- END AUTO-GENERATED -->
 
 ## Advanced Configuration
 
@@ -362,33 +393,14 @@ If you encounter issues:
 - Run multiple servers on same port
 - Edit database while server is running
 
-## Future Enhancements
-
-Possible features for future versions:
-- Anonymous vs named leaderboard
-- Tie-breaker question
-- Sound effects/animations
-- Mobile app for easier submission
-- Statistical analysis dashboard
-- Real-time WebSocket updates
-- Guest photos with submissions
-- Prize wheel for winner
-
 ## Credits
 
-Built with ❤️ for your special day!
+Built for the Hancox wedding (11 April 2026).
 
-Technologies used:
-- Python Flask
-- SQLite
-- Bootstrap 5
-- QR Code library
-- Vanilla JavaScript
+Technologies: Python Flask · SQLite · Bootstrap 5.3 · Vanilla ES6 · Fuse.js · Cormorant Garamond / Outfit / Cinzel fonts
 
 ---
 
 **Enjoy your wedding! 💍✨**
 
-Questions? Check the troubleshooting section above or review the code comments in `app.py` and `database.py`.
-
-Last updated: 2026-03-17
+Last updated: 2026-03-21

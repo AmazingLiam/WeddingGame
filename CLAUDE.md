@@ -77,19 +77,23 @@ Four tables: `guests` (id, name, submission status, QR token), `questions` (text
 - Console logging for diagnostics on startup and errors
 - Consistent JSON API responses with `success`/`error` fields
 - CDN dependencies bundled locally in `static/css/` and `static/js/` (no internet required)
-- Fullscreen API triggered on guest "Start" button as backup for non-PWA access
+- **No `requestFullscreen()` call** — Fully Kiosk Browser owns fullscreen; calling it caused 2-4 screen repaints on Android
+- `<meta name="color-scheme" content="dark">` in `base.html` — keeps WebView background dark during page transitions
 - Anti-accidental-exit CSS: `overscroll-behavior: none`, `user-select: none` in standalone mode
 - Admin session is permanent (24 h) — `session.permanent = True` + `app.permanent_session_lifetime = timedelta(hours=24)`
 - Submitted guests are locked on the search page — `has_submitted` returned by `search_guests()`, grayed out in UI with in-page banner instead of browser alert
 - Logout uses a confirmation modal defined in `base.html` (shared by navbar ✖ and dashboard button); functions `showLogoutModal()` / `hideLogoutModal()` are global
 - `all_answered` flag passed from question route to template — drives "Back to Review" shortcut button when editing a previously answered question
-- `/admin/guests` route + `admin_guests.html` — lists all guests, submitted ones have a View QR modal
+- `/admin/guests` route + `admin_guests.html` — lists all guests; submitted guests have a View QR modal that also fetches and displays their answers via `/api/admin/guest-answers/<id>`
+- Grid floating value (`grid-floating-value`) is `position: absolute` inside `.slider-wrapper-grid` — must stay inside the wrapper div or the JS `style.left` positioning has no effect
+- Confirmation page exit uses a full-screen `#exit-overlay` div that fades via CSS `transition` before `window.location.href` fires — avoids JS `rAF` freeze during unload
+- Time answers stored as total minutes integer in DB; converted to HH:MM in both `view_guest_answers` and `api_admin_guest_answers` routes
 
 ## Color Scheme
 
-Primary (Dark Teal) `#02403d`, Secondary (Dark Blue) `#143850`, Accent (Mauve) `#754956`, Light (Cyan) `#b9d5d5`, Light Alt (Pink) `#f9d5d5`
+Primary (Teal) `#348686`, Secondary (Dark Blue) `#143850`, Confetti Dark `#540f3b`, Confetti Light `#edd3e4`, Bunting `#f9d5d5`
 
-**Dark mode:** Full dark theme via `@media (prefers-color-scheme: dark)` — covers body, cards, forms, buttons, progress bars, sliders, alerts, modals, tables, admin containers. Key dark colours: body `#1a1a1a`, cards `#2d2d2d`, inputs `#3d3d3d`, text `#e0e0e0`, headings `#4dd4c7`. Bootstrap 5 CSS custom properties (`--bs-card-bg`, `--bs-table-bg`) are overridden alongside `background-color !important` to ensure dark backgrounds apply correctly.
+**Dark-first palette** — CSS variables defined at `:root` (dark values). No `prefers-color-scheme` media query needed; the app is always dark. Key vars: `--bg-body: #0e0f1f`, `--bg-card: #1a1b2e`, `--text-primary: #f0ebe6`, `--text-heading: #edd3e4`, `--text-accent: #5bb8b8`.
 
 ## Android Tablet Deployment
 
