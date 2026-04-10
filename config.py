@@ -54,7 +54,7 @@ class Config:
             "short_label": "Speech Duration",
             "type": "number",
             "unit": "minutes",
-            "order": 2,
+            "order": 3,
             "min": 4,
             "max": 60
         },
@@ -63,7 +63,7 @@ class Config:
             "short_label": "Thank You Count",
             "type": "number",
             "unit": "mentions",
-            "order": 3,
+            "order": 4,
             "min": 0,
             "max": 20
         },
@@ -72,7 +72,7 @@ class Config:
             "short_label": "Cake Cutting Time",
             "type": "time",
             "unit": "HH:MM",
-            "order": 4,
+            "order": 2,
             "min": "18:00",
             "max": "20:00"
         }
