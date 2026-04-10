@@ -63,7 +63,7 @@ class Config:
             "short_label": "Thank You Count",
             "type": "number",
             "unit": "mentions",
-            "order": 1,
+            "order": 3,
             "min": 0,
             "max": 20
         },
