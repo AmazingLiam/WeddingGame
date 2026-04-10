@@ -55,17 +55,17 @@ class Config:
             "type": "number",
             "unit": "minutes",
             "order": 2,
-            "min": 10,
-            "max": 120
+            "min": 4,
+            "max": 60
         },
         {
             "text": "How many thank you mentions will be made across all speeches?",
             "short_label": "Thank You Count",
             "type": "number",
             "unit": "mentions",
-            "order": 3,
-            "min": 5,
-            "max": 50
+            "order": 1,
+            "min": 0,
+            "max": 20
         },
         {
             "text": "What time will the bride and groom cut the cake?",
@@ -73,8 +73,8 @@ class Config:
             "type": "time",
             "unit": "HH:MM",
             "order": 4,
-            "min": "17:00",
-            "max": "21:00"
+            "min": "18:00",
+            "max": "20:00"
         }
     ]
 
