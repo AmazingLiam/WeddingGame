@@ -895,7 +895,7 @@ main.container-fluid { padding-left: 0; padding-right: 0; }
     white-space: nowrap;
 }
 
-.slider-wrapper-grid { padding: 28px 0 6px; }
+.slider-wrapper-grid { padding: 17px 0; }
 
 .nudge-btn-sm {
     width: 36px !important; height: 36px !important;
