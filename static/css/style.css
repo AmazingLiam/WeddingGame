@@ -895,11 +895,18 @@ main.container-fluid { padding-left: 0; padding-right: 0; }
     white-space: nowrap;
 }
 
-.slider-wrapper-grid { padding: 17px 0; }
+.slider-wrapper-grid { padding: 28px 0 6px; }
 
 .nudge-btn-sm {
     width: 36px !important; height: 36px !important;
     font-size: 1.2rem !important;
+}
+
+/* Align grid nudge buttons with the slider track centre.
+   Wrapper height=70px, track centre=46px; flex-start+margin-top=28 puts button centre at 28+18=46px */
+.slider-nudge-row .nudge-btn-sm {
+    align-self: flex-start;
+    margin-top: 28px;
 }
 
 .grid-actions {
